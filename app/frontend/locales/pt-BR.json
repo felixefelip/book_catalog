@@ -1,0 +1,29 @@
+{
+  "books": {
+    "index": {
+      "title": "Livros",
+      "new_book": "Novo livro",
+      "empty": "Nenhum livro cadastrado.",
+      "edit": "Editar",
+      "actions": "Ações"
+    },
+    "new": {
+      "title": "Novo livro",
+      "submit": "Cadastrar livro",
+      "back": "Voltar para a lista"
+    },
+    "edit": {
+      "title": "Editar livro",
+      "submit": "Salvar alterações",
+      "back": "Voltar para a lista"
+    },
+    "form": {
+      "title": "Título",
+      "author_name": "Autor",
+      "published_year": "Ano de publicação",
+      "genre": "Gênero",
+      "description": "Descrição",
+      "processing": "Salvando..."
+    }
+  }
+}

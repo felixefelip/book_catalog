@@ -1,9 +1,16 @@
 import { createInertiaApp } from '@inertiajs/react'
 
+import { changeLocale } from '@/lib/i18n'
+
 void createInertiaApp({
   pages: "../pages",
 
   strictMode: true,
+
+  withApp: (app, { page }) => {
+    changeLocale(page.props.locale)
+    return app
+  },
 
   defaults: {
     form: {

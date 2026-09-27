@@ -1,0 +1,20 @@
+pt-BR:
+  activerecord:
+    models:
+      book:
+        one: Livro
+        other: Livros
+    attributes:
+      book:
+        title: Título
+        author_name: Autor
+        published_year: Ano de publicação
+        genre: Gênero
+        description: Descrição
+
+  books:
+    create:
+      success: Livro cadastrado com sucesso.
+    update:
+      success: Livro atualizado com sucesso.
+
