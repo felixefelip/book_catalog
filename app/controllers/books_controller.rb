@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class BooksController < InertiaController
+  allow_unauthenticated_access only: :index
   before_action :set_book, only: %i[edit update]
 
   def index

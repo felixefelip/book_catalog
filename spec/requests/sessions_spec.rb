@@ -13,10 +13,10 @@ RSpec.describe "Sessions", type: :request do
 
   describe "POST /session" do
     it "signs in and redirects to the page requested before" do
-      get books_path
+      get new_book_path
       post session_path, params: { email_address: user.email_address, password: "password" }
 
-      expect(response).to redirect_to(books_url)
+      expect(response).to redirect_to(new_book_url)
 
       follow_redirect!
       expect(inertia.props[:current_user]).to eq(
@@ -35,11 +35,11 @@ RSpec.describe "Sessions", type: :request do
   end
 
   describe "DELETE /session" do
-    it "signs out" do
+    it "signs out and redirects to the books list" do
       sign_in_as(user)
 
       expect { delete session_path }.to change(Session, :count).by(-1)
-      expect(response).to redirect_to(new_session_path)
+      expect(response).to redirect_to(root_path)
       expect(response).to have_http_status(:see_other)
     end
   end

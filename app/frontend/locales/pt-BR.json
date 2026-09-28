@@ -27,6 +27,9 @@
     }
   },
   "layout": {
+    "home": "Início",
+    "sign_in": "Entrar",
+    "sign_up": "Criar conta",
     "sign_out": "Sair"
   },
   "sessions": {

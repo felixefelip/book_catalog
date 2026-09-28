@@ -132,8 +132,18 @@ RSpec.describe "Books", type: :request do
   context "when not signed in" do
     before { delete session_path }
 
-    it "redirects to the sign in page" do
+    it "lists the books without a current user" do
+      create(:book, title: "Dom Casmurro")
+
       get books_path
+
+      expect_inertia.to render_component("books/index")
+      expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
+      expect(inertia.props[:current_user]).to be_nil
+    end
+
+    it "redirects to the sign in page when accessing other pages" do
+      get new_book_path
 
       expect(response).to redirect_to(new_session_path)
     end
