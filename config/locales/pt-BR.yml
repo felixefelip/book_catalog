@@ -11,12 +11,21 @@ pt-BR:
         published_year: Ano de publicação
         genre: Gênero
         description: Descrição
+        cover: Capa
       user:
         name: Nome
         last_name: Sobrenome
         email_address: E-mail
         password: Senha
         password_confirmation: Confirmação da senha
+
+    errors:
+      models:
+        book:
+          attributes:
+            cover:
+              invalid_content_type: deve ser uma imagem JPEG, PNG ou WebP
+              too_large: deve ter no máximo %{count} MB
 
   books:
     create:

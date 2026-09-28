@@ -6,6 +6,7 @@ import type { Book, BookFormType } from "./types";
 import { Input } from "@/components/ui/input";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -24,7 +25,9 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
 
   return (
     <InertiaForm<BookFormType>
-      transform={(data) => ({ book: data })}
+      transform={({ cover, ...data }) => ({
+        book: cover?.size ? { ...data, cover } : data,
+      })}
       {...formProps}
     >
       {({ errors, processing }) => (
@@ -93,6 +96,26 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
               defaultValue={book.description ?? ""}
             />
             <FieldError errors={toFieldErrors(errors.description)} />
+          </Field>
+
+          <Field data-invalid={!!errors.cover}>
+            <FieldLabel htmlFor="cover">{t("books.form.cover")}</FieldLabel>
+            {book.cover_url && (
+              <img
+                src={book.cover_url}
+                alt={t("books.form.current_cover")}
+                className="w-24 rounded-md object-cover"
+              />
+            )}
+            <Input
+              type="file"
+              name="cover"
+              id="cover"
+              accept="image/jpeg,image/png,image/webp"
+              aria-invalid={!!errors.cover}
+            />
+            <FieldDescription>{t("books.form.cover_hint")}</FieldDescription>
+            <FieldError errors={toFieldErrors(errors.cover)} />
           </Field>
 
           <div>

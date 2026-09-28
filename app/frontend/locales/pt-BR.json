@@ -24,6 +24,9 @@
       "published_year": "Ano de publicação",
       "genre": "Gênero",
       "description": "Descrição",
+      "cover": "Capa",
+      "current_cover": "Capa atual",
+      "cover_hint": "JPEG, PNG ou WebP, com até 5 MB.",
       "processing": "Salvando..."
     }
   },

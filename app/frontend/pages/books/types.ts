@@ -5,6 +5,9 @@ export interface Book {
   published_year: number | null
   genre: string
   description: string | null
+  cover_url: string | null
 }
 
-export type BookFormType = Omit<Book, 'id'>
+export type BookFormType = Omit<Book, 'id' | 'cover_url'> & {
+  cover: File | null
+}

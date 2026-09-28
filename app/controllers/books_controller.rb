@@ -5,7 +5,7 @@ class BooksController < InertiaController
   before_action :set_book, only: %i[edit update]
 
   def index
-    render inertia: { books: Book.order(:title).map { |book| serialize_book(book) } }
+    render inertia: { books: Book.with_attached_cover.order(:title).map { |book| serialize_book(book) } }
   end
 
   def new
@@ -40,10 +40,12 @@ class BooksController < InertiaController
     end
 
     def book_params
-      params.expect(book: %i[title author_name published_year genre description])
+      params.expect(book: %i[title author_name published_year genre description cover])
     end
 
     def serialize_book(book)
-      book.as_json(only: %i[id title author_name published_year genre description])
+      book.as_json(only: %i[id title author_name published_year genre description]).merge(
+        "cover_url" => (url_for(book.cover.variant(:thumb)) if book.cover.attached?)
+      )
     end
 end

@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/empty";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -65,23 +64,38 @@ export default function Index({ books }: IndexProps) {
             {books.map((book) => (
               <li key={book.id}>
                 <Card className="h-full">
-                  <CardHeader>
-                    <CardTitle>
-                      <h2>{book.title}</h2>
-                    </CardTitle>
-                    <CardDescription>
-                      {book.author_name}
-                      {book.published_year && ` · ${book.published_year}`}
-                    </CardDescription>
-                    <CardAction>
-                      <Badge variant="secondary">{book.genre}</Badge>
-                    </CardAction>
-                  </CardHeader>
-                  {book.description && (
-                    <CardContent className="flex-1">
-                      <p className="line-clamp-3">{book.description}</p>
-                    </CardContent>
-                  )}
+                  <div className="flex flex-1 items-start gap-2">
+                    {book.cover_url ? (
+                      <img
+                        src={book.cover_url}
+                        alt=""
+                        className="ml-(--card-spacing) aspect-2/3 w-20 shrink-0 rounded-md object-cover"
+                      />
+                    ) : (
+                      <div className="ml-(--card-spacing) flex aspect-2/3 w-20 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                        <BookOpen aria-hidden="true" />
+                      </div>
+                    )}
+                    <div className="flex min-w-0 flex-1 flex-col gap-(--card-spacing)">
+                      <CardHeader>
+                        <CardTitle>
+                          <h2>{book.title}</h2>
+                        </CardTitle>
+                        <CardDescription>
+                          {book.author_name}
+                          {book.published_year && ` · ${book.published_year}`}
+                        </CardDescription>
+                        <Badge variant="secondary" className="mt-1">
+                          {book.genre}
+                        </Badge>
+                      </CardHeader>
+                      {book.description && (
+                        <CardContent>
+                          <p className="line-clamp-3">{book.description}</p>
+                        </CardContent>
+                      )}
+                    </div>
+                  </div>
                   <CardFooter className="mt-auto justify-end">
                     <Button
                       variant="ghost"

@@ -26,6 +26,15 @@ RSpec.describe "Books", type: :request do
   end
 
   describe "GET /books" do
+    it "includes the cover thumbnail url" do
+      book = create(:book)
+      book.cover.attach(fixture_file_upload("cover.png", "image/png"))
+
+      get books_path
+
+      expect(inertia.props[:books].first["cover_url"]).to include("cover.png")
+    end
+
     it "lists the books ordered by title" do
       create(:book, title: "Memórias Póstumas de Brás Cubas")
       create(:book, title: "Dom Casmurro")
@@ -66,9 +75,31 @@ RSpec.describe "Books", type: :request do
 
         expect(response).to redirect_to(books_path)
         expect(Book.last).to have_attributes(title: "Dom Casmurro", published_year: 1899)
+        expect(Book.last.cover).not_to be_attached
 
         follow_redirect!
         expect_inertia.to have_flash(notice: "Livro cadastrado com sucesso.")
+      end
+    end
+
+    context "with a cover" do
+      it "attaches the cover" do
+        post books_path, params: { book: valid_params[:book].merge(cover: fixture_file_upload("cover.png", "image/png")) }
+
+        expect(Book.last.cover).to be_attached
+      end
+    end
+
+    context "with a cover that is not an image" do
+      it "does not create the book and redirects back with the error" do
+        expect {
+          post books_path, params: {
+            book: valid_params[:book].merge(cover: fixture_file_upload("not_an_image.txt", "text/plain"))
+          }
+        }.not_to change(Book, :count)
+
+        follow_redirect!
+        expect(inertia.props[:errors]).to include("cover" => [ "Capa deve ser uma imagem JPEG, PNG ou WebP" ])
       end
     end
 
@@ -103,6 +134,24 @@ RSpec.describe "Books", type: :request do
 
   describe "PATCH /books/:id" do
     let(:book) { create(:book) }
+
+    context "when the book has a cover" do
+      before { book.cover.attach(fixture_file_upload("cover.png", "image/png")) }
+
+      it "keeps the cover when no new file is sent" do
+        patch book_path(book), params: { book: { title: "99 Bottles of OOP" } }
+
+        expect(book.reload.cover).to be_attached
+      end
+
+      it "replaces the cover when a new file is sent" do
+        old_blob = book.cover.blob
+
+        patch book_path(book), params: { book: { cover: fixture_file_upload("cover.png", "image/png") } }
+
+        expect(book.reload.cover.blob).not_to eq(old_blob)
+      end
+    end
 
     context "with valid params" do
       it "updates the book and redirects to the list" do
