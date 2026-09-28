@@ -77,6 +77,47 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:genres]).to eq([ "Ficção científica", "Romance" ])
     end
 
+    context "with more books than fit in a page" do
+      before do
+        create_list(:book, 12)
+        create(:book, title: "Dom Casmurro", created_at: 1.year.ago)
+      end
+
+      it "returns the first page with the pagination data" do
+        get books_path
+
+        expect(inertia.props[:books].size).to eq(12)
+        expect(inertia.props[:pagination]).to eq("current_page" => 1, "total_pages" => 2, "total_count" => 13)
+      end
+
+      it "returns the requested page" do
+        get books_path, params: { page: 2 }
+
+        expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
+        expect(inertia.props[:pagination]).to include("current_page" => 2)
+      end
+
+      it "paginates only the filtered books" do
+        get books_path, params: { title: "Casmurro" }
+
+        expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
+        expect(inertia.props[:pagination]).to eq("current_page" => 1, "total_pages" => 1, "total_count" => 1)
+      end
+
+      it "redirects to the last page keeping the filters when the page is out of range" do
+        get books_path, params: { title: "Practical", page: 5 }
+
+        expect(response).to redirect_to(books_path(title: "Practical", page: 1))
+      end
+    end
+
+    it "renders an empty page when there are no books" do
+      get books_path, params: { page: 3 }
+
+      expect(inertia.props[:books]).to eq([])
+      expect(inertia.props[:pagination]).to include("total_pages" => 0, "total_count" => 0)
+    end
+
     it "renders an empty list when there are no books" do
       get books_path
 

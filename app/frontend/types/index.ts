@@ -14,3 +14,9 @@ export type SharedProps = {
   locale: string
   current_user: CurrentUser | null
 }
+
+export type Pagination = {
+  current_page: number
+  total_pages: number
+  total_count: number
+}

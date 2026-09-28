@@ -12,7 +12,7 @@ export type BookFormType = Omit<Book, 'id' | 'cover_url'> & {
   cover: File | null
 }
 
-export interface BookFilters {
+export type BookFilters = {
   title?: string
   author_name?: string
   genre?: string

@@ -6,7 +6,9 @@
       "empty": "Nenhum livro cadastrado.",
       "edit": "Editar",
       "no_results": "Nenhum livro encontrado.",
-      "no_results_hint": "Tente ajustar ou limpar os filtros."
+      "no_results_hint": "Tente ajustar ou limpar os filtros.",
+      "count_one": "{{count}} livro",
+      "count_other": "{{count}} livros"
     },
     "filters": {
       "title": "Título",
@@ -53,6 +55,14 @@
       "confirm": "Excluir",
       "processing": "Excluindo..."
     }
+  },
+  "pagination": {
+    "label": "Paginação",
+    "previous": "Anterior",
+    "previous_label": "Ir para a página anterior",
+    "next": "Próxima",
+    "next_label": "Ir para a próxima página",
+    "page": "Página {{page}}"
   },
   "layout": {
     "home": "Início",

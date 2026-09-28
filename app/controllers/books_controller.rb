@@ -6,10 +6,17 @@ class BooksController < InertiaController
 
   def index
     filters = params.permit(:title, :author_name, :genre, :year_from, :year_to).compact_blank.to_h
-    books = Book.with_attached_cover.filter_by(filters).order(created_at: :desc, id: :desc)
+    books = Book.with_attached_cover.filter_by(filters).order(created_at: :desc, id: :desc).page(params[:page])
+
+    return redirect_to books_path(filters.merge(page: books.total_pages)) if books.out_of_range? && books.total_pages.positive?
 
     render inertia: {
       books: books.map { |book| serialize_book(book) },
+      pagination: {
+        current_page: books.current_page,
+        total_pages: books.total_pages,
+        total_count: books.total_count
+      },
       filters: filters,
       genres: Book.distinct.order(:genre).pluck(:genre)
     }
