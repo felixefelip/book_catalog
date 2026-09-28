@@ -5,7 +5,14 @@ class BooksController < InertiaController
   before_action :set_book, only: %i[show edit update destroy]
 
   def index
-    render inertia: { books: Book.with_attached_cover.order(:title).map { |book| serialize_book(book) } }
+    filters = params.permit(:title, :author_name, :genre, :year_from, :year_to).compact_blank.to_h
+    books = Book.with_attached_cover.filter_by(filters).order(:title)
+
+    render inertia: {
+      books: books.map { |book| serialize_book(book) },
+      filters: filters,
+      genres: Book.distinct.order(:genre).pluck(:genre)
+    }
   end
 
   def show

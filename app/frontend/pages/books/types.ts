@@ -11,3 +11,11 @@ export interface Book {
 export type BookFormType = Omit<Book, 'id' | 'cover_url'> & {
   cover: File | null
 }
+
+export interface BookFilters {
+  title?: string
+  author_name?: string
+  genre?: string
+  year_from?: string
+  year_to?: string
+}

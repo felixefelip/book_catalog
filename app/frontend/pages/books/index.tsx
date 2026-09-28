@@ -1,13 +1,15 @@
 import { Head, Link, usePage } from "@inertiajs/react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, SearchX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import type { Book } from "./types";
+import Filters from "./filters";
+import type { Book, BookFilters } from "./types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
@@ -23,11 +25,14 @@ import {
 
 interface IndexProps {
   books: Book[];
+  filters: BookFilters;
+  genres: string[];
 }
 
-export default function Index({ books }: IndexProps) {
+export default function Index({ books, filters, genres }: IndexProps) {
   const { t } = useTranslation();
   const { flash } = usePage();
+  const hasBooks = genres.length > 0;
 
   return (
     <>
@@ -38,14 +43,22 @@ export default function Index({ books }: IndexProps) {
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold">{t("books.index.title")}</h1>
-          {books.length > 0 && (
+          {hasBooks && (
             <Button nativeButton={false} render={<Link href="/books/new" />}>
               {t("books.index.new_book")}
             </Button>
           )}
         </div>
 
-        {books.length === 0 ? (
+        {hasBooks && (
+          <Card>
+            <CardContent>
+              <Filters filters={filters} genres={genres} />
+            </CardContent>
+          </Card>
+        )}
+
+        {!hasBooks ? (
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
@@ -58,6 +71,16 @@ export default function Index({ books }: IndexProps) {
                 {t("books.index.new_book")}
               </Button>
             </EmptyContent>
+          </Empty>
+        ) : books.length === 0 ? (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <SearchX />
+              </EmptyMedia>
+              <EmptyTitle>{t("books.index.no_results")}</EmptyTitle>
+              <EmptyDescription>{t("books.index.no_results_hint")}</EmptyDescription>
+            </EmptyHeader>
           </Empty>
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

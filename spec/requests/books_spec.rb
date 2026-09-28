@@ -46,6 +46,26 @@ RSpec.describe "Books", type: :request do
         .to eq([ "Dom Casmurro", "Memórias Póstumas de Brás Cubas" ])
     end
 
+    it "filters the books by the given params" do
+      create(:book, title: "Dom Casmurro", genre: "Romance")
+      create(:book, title: "Duna", genre: "Ficção científica")
+
+      get books_path, params: { title: "dun", genre: "Ficção científica", author_name: "" }
+
+      expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Duna" ])
+      expect(inertia.props[:filters]).to eq("title" => "dun", "genre" => "Ficção científica")
+    end
+
+    it "lists the available genres" do
+      create(:book, genre: "Romance")
+      create(:book, genre: "Ficção científica")
+      create(:book, genre: "Romance")
+
+      get books_path, params: { genre: "Romance" }
+
+      expect(inertia.props[:genres]).to eq([ "Ficção científica", "Romance" ])
+    end
+
     it "renders an empty list when there are no books" do
       get books_path
 

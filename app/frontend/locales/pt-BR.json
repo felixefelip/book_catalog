@@ -4,7 +4,19 @@
       "title": "Livros",
       "new_book": "Novo livro",
       "empty": "Nenhum livro cadastrado.",
-      "edit": "Editar"
+      "edit": "Editar",
+      "no_results": "Nenhum livro encontrado.",
+      "no_results_hint": "Tente ajustar ou limpar os filtros."
+    },
+    "filters": {
+      "title": "Título",
+      "author_name": "Autor",
+      "genre": "Gênero",
+      "all_genres": "Todos os gêneros",
+      "year_from": "Publicado a partir de",
+      "year_to": "Publicado até",
+      "submit": "Filtrar",
+      "clear": "Limpar filtros"
     },
     "show": {
       "back": "Voltar para a lista",
