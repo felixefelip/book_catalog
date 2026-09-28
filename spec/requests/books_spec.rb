@@ -178,6 +178,26 @@ RSpec.describe "Books", type: :request do
     end
   end
 
+  describe "DELETE /books/:id" do
+    let!(:book) { create(:book) }
+
+    it "deletes the book and redirects to the list" do
+      expect { delete book_path(book) }.to change(Book, :count).by(-1)
+
+      expect(response).to redirect_to(books_path)
+      expect(response).to have_http_status(:see_other)
+
+      follow_redirect!
+      expect_inertia.to have_flash(notice: "Livro excluído com sucesso.")
+    end
+
+    it "removes the cover" do
+      book.cover.attach(fixture_file_upload("cover.png", "image/png"))
+
+      expect { delete book_path(book) }.to have_enqueued_job(ActiveStorage::PurgeJob)
+    end
+  end
+
   context "when not signed in" do
     before { delete session_path }
 
@@ -194,6 +214,13 @@ RSpec.describe "Books", type: :request do
     it "redirects to the sign in page when accessing other pages" do
       get new_book_path
 
+      expect(response).to redirect_to(new_session_path)
+    end
+
+    it "does not delete books" do
+      book = create(:book)
+
+      expect { delete book_path(book) }.not_to change(Book, :count)
       expect(response).to redirect_to(new_session_path)
     end
   end

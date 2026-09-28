@@ -2,7 +2,7 @@
 
 class BooksController < InertiaController
   allow_unauthenticated_access only: :index
-  before_action :set_book, only: %i[edit update]
+  before_action :set_book, only: %i[edit update destroy]
 
   def index
     render inertia: { books: Book.with_attached_cover.order(:title).map { |book| serialize_book(book) } }
@@ -32,6 +32,11 @@ class BooksController < InertiaController
     else
       redirect_to edit_book_path(@book), inertia: { errors: @book.errors.to_hash(true) }
     end
+  end
+
+  def destroy
+    @book.destroy!
+    redirect_to books_path, notice: t(".success"), status: :see_other
   end
 
   private

@@ -32,6 +32,8 @@ pt-BR:
       success: Livro cadastrado com sucesso.
     update:
       success: Livro atualizado com sucesso.
+    destroy:
+      success: Livro excluído com sucesso.
 
   sessions:
     create:

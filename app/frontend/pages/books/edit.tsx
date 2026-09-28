@@ -1,6 +1,7 @@
 import { Head, Link } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
+import DeleteDialog from "./delete_dialog";
 import Form from "./form";
 import type { Book } from "./types";
 import {
@@ -38,8 +39,9 @@ export default function Edit({ book }: EditProps) {
             submitText={t("books.edit.submit")}
           />
         </CardContent>
-        <CardFooter>
+        <CardFooter className="justify-between">
           <Link href="/books">{t("books.edit.back")}</Link>
+          <DeleteDialog book={book} />
         </CardFooter>
       </Card>
     </div>

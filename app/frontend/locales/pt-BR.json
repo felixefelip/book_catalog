@@ -28,6 +28,13 @@
       "current_cover": "Capa atual",
       "cover_hint": "JPEG, PNG ou WebP, com até 5 MB.",
       "processing": "Salvando..."
+    },
+    "delete": {
+      "trigger": "Excluir",
+      "title": "Excluir livro?",
+      "cancel": "Cancelar",
+      "confirm": "Excluir",
+      "processing": "Excluindo..."
     }
   },
   "layout": {
