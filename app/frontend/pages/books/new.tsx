@@ -12,7 +12,7 @@ export default function New({ book }: NewProps) {
   const { t } = useTranslation();
 
   return (
-    <>
+    <div className="mx-auto max-w-sm">
       <Head title={t("books.new.title")} />
 
       <h1>{t("books.new.title")}</h1>
@@ -29,6 +29,6 @@ export default function New({ book }: NewProps) {
       <div>
         <Link href="/books">{t("books.new.back")}</Link>
       </div>
-    </>
+    </div>
   );
 }

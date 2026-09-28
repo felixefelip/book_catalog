@@ -1,11 +1,14 @@
 import { createInertiaApp } from "@inertiajs/react";
 
+import AppLayout from "@/layouts/app-layout";
 import { changeLocale } from "@/lib/i18n";
 
 import "./application.css";
 
 void createInertiaApp({
   pages: "../pages",
+
+  layout: () => AppLayout,
 
   strictMode: true,
 

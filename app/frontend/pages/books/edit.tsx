@@ -12,7 +12,7 @@ export default function Edit({ book }: EditProps) {
   const { t } = useTranslation()
 
   return (
-    <>
+    <div className='mx-auto max-w-sm'>
       <Head title={t('books.edit.title')} />
 
       <h1>{t('books.edit.title')}</h1>
@@ -29,6 +29,6 @@ export default function Edit({ book }: EditProps) {
       <div>
         <Link href="/books">{t('books.edit.back')}</Link>
       </div>
-    </>
+    </div>
   )
 }

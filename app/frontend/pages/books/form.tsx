@@ -28,7 +28,6 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
     <InertiaForm<BookFormType>
       transform={(data) => ({ book: data })}
       {...formProps}
-      className="w-full max-w-sm"
     >
       {({ errors, processing }) => (
         <FieldGroup>
