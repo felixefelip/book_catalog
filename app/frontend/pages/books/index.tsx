@@ -33,7 +33,7 @@ export default function Index({ books }: IndexProps) {
     <>
       <Head title={t("books.index.title")} />
 
-      {flash.notice && <p className="text-green-600">{flash.notice}</p>}
+      {flash.notice && <p className="text-green-600 dark:text-green-400">{flash.notice}</p>}
 
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">

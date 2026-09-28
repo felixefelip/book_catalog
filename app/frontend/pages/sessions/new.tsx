@@ -30,7 +30,7 @@ export default function New() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {flash.alert && <p className="text-destructive">{flash.alert}</p>}
-          {flash.notice && <p className="text-green-600">{flash.notice}</p>}
+          {flash.notice && <p className="text-green-600 dark:text-green-400">{flash.notice}</p>}
 
           <Form action="/session" method="post" resetOnError={["password"]}>
             {({ processing }) => (

@@ -89,5 +89,11 @@
       "submit": "Criar conta",
       "sign_in": "Já tem conta? Entrar"
     }
+  },
+  "appearance": {
+    "toggle": "Alterar tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
   }
 }

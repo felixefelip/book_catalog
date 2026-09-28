@@ -3,6 +3,7 @@ import { ChevronDown, LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import AppearanceToggle from "@/components/appearance_toggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -44,6 +45,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </NavigationMenu>
 
         <div className="flex-1" />
+
+        <AppearanceToggle />
 
         {current_user ? (
           <DropdownMenu>
