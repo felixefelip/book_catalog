@@ -53,6 +53,21 @@ RSpec.describe "Books", type: :request do
     end
   end
 
+  describe "GET /books/:id" do
+    it "renders the book page" do
+      book = create(:book, description: "Um guia sobre design orientado a objetos.")
+
+      get book_path(book)
+
+      expect_inertia.to render_component("books/show")
+      expect(inertia.props[:book]).to include(
+        "id" => book.id,
+        "title" => book.title,
+        "description" => "Um guia sobre design orientado a objetos."
+      )
+    end
+  end
+
   describe "GET /books/new" do
     it "renders the new book page" do
       get new_book_path
@@ -208,6 +223,15 @@ RSpec.describe "Books", type: :request do
 
       expect_inertia.to render_component("books/index")
       expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
+      expect(inertia.props[:current_user]).to be_nil
+    end
+
+    it "shows a book without a current user" do
+      book = create(:book)
+
+      get book_path(book)
+
+      expect_inertia.to render_component("books/show")
       expect(inertia.props[:current_user]).to be_nil
     end
 

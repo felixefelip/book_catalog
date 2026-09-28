@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 class BooksController < InertiaController
-  allow_unauthenticated_access only: :index
-  before_action :set_book, only: %i[edit update destroy]
+  allow_unauthenticated_access only: %i[index show]
+  before_action :set_book, only: %i[show edit update destroy]
 
   def index
     render inertia: { books: Book.with_attached_cover.order(:title).map { |book| serialize_book(book) } }
+  end
+
+  def show
+    render inertia: { book: serialize_book(@book) }
   end
 
   def new

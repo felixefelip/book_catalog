@@ -63,7 +63,7 @@ export default function Index({ books }: IndexProps) {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {books.map((book) => (
               <li key={book.id}>
-                <Card className="h-full">
+                <Card className="relative h-full transition-shadow hover:ring-foreground/30">
                   <div className="flex flex-1 items-start gap-2">
                     {book.cover_url ? (
                       <img
@@ -79,7 +79,14 @@ export default function Index({ books }: IndexProps) {
                     <div className="flex min-w-0 flex-1 flex-col gap-(--card-spacing)">
                       <CardHeader>
                         <CardTitle>
-                          <h2>{book.title}</h2>
+                          <h2>
+                            <Link
+                              href={`/books/${book.id}`}
+                              className="after:absolute after:inset-0"
+                            >
+                              {book.title}
+                            </Link>
+                          </h2>
                         </CardTitle>
                         <CardDescription>
                           {book.author_name}
@@ -100,6 +107,7 @@ export default function Index({ books }: IndexProps) {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="relative z-10"
                       nativeButton={false}
                       render={<Link href={`/books/${book.id}/edit`} />}
                     >

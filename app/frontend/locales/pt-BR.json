@@ -6,6 +6,11 @@
       "empty": "Nenhum livro cadastrado.",
       "edit": "Editar"
     },
+    "show": {
+      "back": "Voltar para a lista",
+      "edit": "Editar",
+      "no_description": "Este livro ainda não tem descrição."
+    },
     "new": {
       "title": "Novo livro",
       "description": "Preencha os dados do livro para adicioná-lo ao catálogo.",
