@@ -30,7 +30,9 @@
     "home": "Início",
     "sign_in": "Entrar",
     "sign_up": "Criar conta",
-    "sign_out": "Sair"
+    "sign_out": "Sair",
+    "account": "Conta",
+    "main_navigation": "Principal"
   },
   "sessions": {
     "new": {
