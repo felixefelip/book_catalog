@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resource :session
+  resource :registration, only: %i[new create]
   resources :passwords, param: :token
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server

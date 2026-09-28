@@ -63,6 +63,10 @@ export default function New() {
       <div>
         <Link href="/passwords/new">{t("sessions.new.forgot_password")}</Link>
       </div>
+
+      <div>
+        <Link href="/registration/new">{t("sessions.new.sign_up")}</Link>
+      </div>
     </div>
   );
 }

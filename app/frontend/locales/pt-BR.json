@@ -35,7 +35,8 @@
       "email_address": "E-mail",
       "password": "Senha",
       "submit": "Entrar",
-      "forgot_password": "Esqueceu a senha?"
+      "forgot_password": "Esqueceu a senha?",
+      "sign_up": "Criar conta"
     }
   },
   "passwords": {
@@ -50,6 +51,18 @@
       "password": "Nova senha",
       "password_confirmation": "Confirmação da senha",
       "submit": "Salvar"
+    }
+  },
+  "registrations": {
+    "new": {
+      "title": "Criar conta",
+      "name": "Nome",
+      "last_name": "Sobrenome",
+      "email_address": "E-mail",
+      "password": "Senha",
+      "password_confirmation": "Confirmação da senha",
+      "submit": "Criar conta",
+      "sign_in": "Já tem conta? Entrar"
     }
   }
 }

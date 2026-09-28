@@ -12,6 +12,8 @@ pt-BR:
         genre: Gênero
         description: Descrição
       user:
+        name: Nome
+        last_name: Sobrenome
         email_address: E-mail
         password: Senha
         password_confirmation: Confirmação da senha
@@ -25,6 +27,11 @@ pt-BR:
   sessions:
     create:
       failure: E-mail ou senha inválidos.
+      rate_limited: Muitas tentativas. Tente novamente mais tarde.
+
+  registrations:
+    create:
+      success: Conta criada com sucesso.
       rate_limited: Muitas tentativas. Tente novamente mais tarde.
 
   passwords:

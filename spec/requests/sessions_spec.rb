@@ -19,7 +19,9 @@ RSpec.describe "Sessions", type: :request do
       expect(response).to redirect_to(books_url)
 
       follow_redirect!
-      expect(inertia.props[:current_user]).to eq("id" => user.id, "email_address" => "leitor@example.com")
+      expect(inertia.props[:current_user]).to eq(
+        "id" => user.id, "name" => "Machado", "last_name" => "de Assis", "email_address" => "leitor@example.com"
+      )
     end
 
     it "redirects back with an alert when the credentials are invalid" do

@@ -48,6 +48,7 @@ export default function Edit({ token }: EditProps) {
                 id="password"
                 required
                 autoComplete="new-password"
+                minLength={8}
                 maxLength={72}
                 aria-invalid={!!errors.password}
               />

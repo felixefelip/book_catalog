@@ -13,7 +13,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {current_user && (
         <header className="mx-auto flex w-full max-w-4xl items-center justify-end gap-4 px-4 pt-4 text-sm">
           <span className="text-muted-foreground">
-            {current_user.email_address}
+            {current_user.name} {current_user.last_name}
           </span>
           <Button
             variant="ghost"
