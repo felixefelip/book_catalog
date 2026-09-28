@@ -2,6 +2,14 @@ import { Form, Head, Link, usePage } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
@@ -13,41 +21,46 @@ export default function New() {
     <div className="mx-auto max-w-sm">
       <Head title={t("passwords.new.title")} />
 
-      <h1>{t("passwords.new.title")}</h1>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <h1>{t("passwords.new.title")}</h1>
+          </CardTitle>
+          <CardDescription>{t("passwords.new.description")}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {flash.alert && <p className="text-destructive">{flash.alert}</p>}
 
-      {flash.alert && <p className="text-destructive">{flash.alert}</p>}
+          <Form action="/passwords" method="post">
+            {({ processing }) => (
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="email_address">
+                    {t("passwords.new.email_address")}
+                  </FieldLabel>
+                  <Input
+                    type="email"
+                    name="email_address"
+                    id="email_address"
+                    required
+                    autoFocus
+                    autoComplete="username"
+                  />
+                </Field>
 
-      <Form action="/passwords" method="post">
-        {({ processing }) => (
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="email_address">
-                {t("passwords.new.email_address")}
-              </FieldLabel>
-              <Input
-                type="email"
-                name="email_address"
-                id="email_address"
-                required
-                autoFocus
-                autoComplete="username"
-              />
-            </Field>
-
-            <div>
-              <Button type="submit" disabled={processing}>
-                {t("passwords.new.submit")}
-              </Button>
-            </div>
-          </FieldGroup>
-        )}
-      </Form>
-
-      <br />
-
-      <div>
-        <Link href="/session/new">{t("passwords.new.back")}</Link>
-      </div>
+                <div>
+                  <Button type="submit" disabled={processing}>
+                    {t("passwords.new.submit")}
+                  </Button>
+                </div>
+              </FieldGroup>
+            )}
+          </Form>
+        </CardContent>
+        <CardFooter>
+          <Link href="/session/new">{t("passwords.new.back")}</Link>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

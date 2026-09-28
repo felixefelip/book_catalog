@@ -9,11 +9,13 @@
     },
     "new": {
       "title": "Novo livro",
+      "description": "Preencha os dados do livro para adicioná-lo ao catálogo.",
       "submit": "Cadastrar livro",
       "back": "Voltar para a lista"
     },
     "edit": {
       "title": "Editar livro",
+      "description": "Atualize os dados do livro.",
       "submit": "Salvar alterações",
       "back": "Voltar para a lista"
     },
@@ -37,6 +39,7 @@
   "sessions": {
     "new": {
       "title": "Entrar",
+      "description": "Informe seu e-mail e senha para acessar sua conta.",
       "email_address": "E-mail",
       "password": "Senha",
       "submit": "Entrar",
@@ -47,12 +50,14 @@
   "passwords": {
     "new": {
       "title": "Esqueceu a senha?",
+      "description": "Informe seu e-mail e enviaremos as instruções para redefinir sua senha.",
       "email_address": "E-mail",
       "submit": "Enviar instruções",
       "back": "Voltar para o login"
     },
     "edit": {
       "title": "Redefinir senha",
+      "description": "Escolha uma nova senha com pelo menos 8 caracteres.",
       "password": "Nova senha",
       "password_confirmation": "Confirmação da senha",
       "submit": "Salvar"
@@ -61,6 +66,7 @@
   "registrations": {
     "new": {
       "title": "Criar conta",
+      "description": "Preencha os dados abaixo para criar sua conta.",
       "name": "Nome",
       "last_name": "Sobrenome",
       "email_address": "E-mail",
