@@ -35,15 +35,26 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:books].first["cover_url"]).to include("cover.png")
     end
 
-    it "lists the books ordered by title" do
-      create(:book, title: "Memórias Póstumas de Brás Cubas")
-      create(:book, title: "Dom Casmurro")
+    it "lists the most recently created books first" do
+      create(:book, title: "Dom Casmurro", created_at: 2.days.ago)
+      create(:book, title: "Quincas Borba", created_at: 1.day.ago)
+      create(:book, title: "Memórias Póstumas de Brás Cubas", created_at: 3.days.ago)
 
       get books_path
 
       expect_inertia.to render_component("books/index")
       expect(inertia.props[:books].map { |book| book["title"] })
-        .to eq([ "Dom Casmurro", "Memórias Póstumas de Brás Cubas" ])
+        .to eq([ "Quincas Borba", "Dom Casmurro", "Memórias Póstumas de Brás Cubas" ])
+    end
+
+    it "breaks ties in the creation date by the most recent id" do
+      created_at = 1.day.ago
+      create(:book, title: "Dom Casmurro", created_at: created_at)
+      create(:book, title: "Quincas Borba", created_at: created_at)
+
+      get books_path
+
+      expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Quincas Borba", "Dom Casmurro" ])
     end
 
     it "filters the books by the given params" do

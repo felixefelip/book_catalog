@@ -6,7 +6,7 @@ class BooksController < InertiaController
 
   def index
     filters = params.permit(:title, :author_name, :genre, :year_from, :year_to).compact_blank.to_h
-    books = Book.with_attached_cover.filter_by(filters).order(:title)
+    books = Book.with_attached_cover.filter_by(filters).order(created_at: :desc, id: :desc)
 
     render inertia: {
       books: books.map { |book| serialize_book(book) },
