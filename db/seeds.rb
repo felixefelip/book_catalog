@@ -1,9 +1,72 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+books = [
+  { title: "Dom Casmurro", author_name: "Machado de Assis", published_year: 1899, genre: "Romance",
+    description: "Bentinho relembra sua vida e o ciúme que sente de Capitu, sua amiga de infância e esposa." },
+  { title: "Memórias Póstumas de Brás Cubas", author_name: "Machado de Assis", published_year: 1881, genre: "Romance",
+    description: "Um defunto autor narra, com ironia, a própria vida a partir do além." },
+  { title: "O Cortiço", author_name: "Aluísio Azevedo", published_year: 1890, genre: "Romance",
+    description: "A vida coletiva de um cortiço no Rio de Janeiro do século XIX." },
+  { title: "Grande Sertão: Veredas", author_name: "João Guimarães Rosa", published_year: 1956, genre: "Romance",
+    description: "Riobaldo, ex-jagunço, conta suas andanças pelo sertão e sua relação com Diadorim." },
+  { title: "Vidas Secas", author_name: "Graciliano Ramos", published_year: 1938, genre: "Romance",
+    description: "Uma família de retirantes tenta sobreviver à seca no sertão nordestino." },
+  { title: "A Hora da Estrela", author_name: "Clarice Lispector", published_year: 1977, genre: "Romance",
+    description: "A história de Macabéa, uma jovem nordestina que vive no Rio de Janeiro." },
+  { title: "Capitães da Areia", author_name: "Jorge Amado", published_year: 1937, genre: "Romance",
+    description: "Um grupo de meninos de rua vive de pequenos furtos em Salvador." },
+  { title: "Orgulho e Preconceito", author_name: "Jane Austen", published_year: 1813, genre: "Romance",
+    description: "Elizabeth Bennet e o Sr. Darcy superam primeiras impressões na Inglaterra rural." },
+  { title: "Cem Anos de Solidão", author_name: "Gabriel García Márquez", published_year: 1967, genre: "Realismo mágico",
+    description: "A saga de sete gerações da família Buendía na cidade fictícia de Macondo." },
+  { title: "1984", author_name: "George Orwell", published_year: 1949, genre: "Distopia",
+    description: "Winston Smith vive sob a vigilância constante do Grande Irmão." },
+  { title: "Admirável Mundo Novo", author_name: "Aldous Huxley", published_year: 1932, genre: "Distopia",
+    description: "Uma sociedade controlada por condicionamento, castas e prazer permanente." },
+  { title: "Fahrenheit 451", author_name: "Ray Bradbury", published_year: 1953, genre: "Distopia",
+    description: "Um bombeiro encarregado de queimar livros começa a questionar seu trabalho." },
+  { title: "Duna", author_name: "Frank Herbert", published_year: 1965, genre: "Ficção científica",
+    description: "Paul Atreides se envolve na disputa pelo planeta desértico Arrakis." },
+  { title: "Fundação", author_name: "Isaac Asimov", published_year: 1951, genre: "Ficção científica",
+    description: "Hari Seldon usa a psico-história para abreviar a era de trevas após a queda do Império." },
+  { title: "Neuromancer", author_name: "William Gibson", published_year: 1984, genre: "Ficção científica",
+    description: "Um hacker decadente é contratado para um último trabalho no ciberespaço." },
+  { title: "O Guia do Mochileiro das Galáxias", author_name: "Douglas Adams", published_year: 1979, genre: "Ficção científica",
+    description: "Arthur Dent escapa da destruição da Terra e viaja pela galáxia." },
+  { title: "O Hobbit", author_name: "J.R.R. Tolkien", published_year: 1937, genre: "Fantasia",
+    description: "Bilbo Bolseiro parte com anões para recuperar um tesouro guardado por um dragão." },
+  { title: "O Senhor dos Anéis: A Sociedade do Anel", author_name: "J.R.R. Tolkien", published_year: 1954, genre: "Fantasia",
+    description: "Frodo inicia a jornada para destruir o Um Anel." },
+  { title: "Harry Potter e a Pedra Filosofal", author_name: "J.K. Rowling", published_year: 1997, genre: "Fantasia",
+    description: "Harry descobre que é bruxo e começa seus estudos em Hogwarts." },
+  { title: "O Nome do Vento", author_name: "Patrick Rothfuss", published_year: 2007, genre: "Fantasia",
+    description: "Kvothe conta a história de sua vida, de artista itinerante a lenda." },
+  { title: "O Assassinato de Roger Ackroyd", author_name: "Agatha Christie", published_year: 1926, genre: "Mistério",
+    description: "Hercule Poirot investiga a morte de um rico morador de uma pequena vila inglesa." },
+  { title: "O Cão dos Baskervilles", author_name: "Arthur Conan Doyle", published_year: 1902, genre: "Mistério",
+    description: "Sherlock Holmes investiga a lenda de um cão demoníaco em Dartmoor." },
+  { title: "O Nome da Rosa", author_name: "Umberto Eco", published_year: 1980, genre: "Mistério",
+    description: "Uma série de mortes em uma abadia medieval é investigada por Guilherme de Baskerville." },
+  { title: "Drácula", author_name: "Bram Stoker", published_year: 1897, genre: "Terror",
+    description: "O conde Drácula deixa a Transilvânia rumo à Inglaterra." },
+  { title: "Frankenstein", author_name: "Mary Shelley", published_year: 1818, genre: "Terror",
+    description: "Victor Frankenstein dá vida a uma criatura e precisa lidar com as consequências." },
+  { title: "O Iluminado", author_name: "Stephen King", published_year: 1977, genre: "Terror",
+    description: "Jack Torrance aceita cuidar de um hotel isolado durante o inverno com a família." },
+  { title: "Sapiens: Uma Breve História da Humanidade", author_name: "Yuval Noah Harari", published_year: 2011, genre: "História",
+    description: "Um panorama da história humana, da Idade da Pedra ao século XXI." },
+  { title: "O Diário de Anne Frank", author_name: "Anne Frank", published_year: 1947, genre: "Biografia",
+    description: "O diário de uma adolescente judia escondida em Amsterdã durante a Segunda Guerra." },
+  { title: "Clean Code", author_name: "Robert C. Martin", published_year: 2008, genre: "Programação",
+    description: "Princípios e práticas para escrever código legível e fácil de manter." },
+  { title: "Practical Object-Oriented Design: An Agile Primer Using Ruby", author_name: "Sandi Metz", published_year: 2012, genre: "Programação",
+    description: "Como projetar aplicações orientadas a objetos em Ruby que sejam fáceis de mudar." },
+  { title: "The Pragmatic Programmer", author_name: "Andrew Hunt e David Thomas", published_year: 1999, genre: "Programação",
+    description: "Conselhos práticos sobre a carreira e o ofício de programar." },
+  { title: "O Pequeno Príncipe", author_name: "Antoine de Saint-Exupéry", published_year: 1943, genre: "Infantojuvenil",
+    description: "Um aviador perdido no deserto conhece um pequeno príncipe vindo de outro planeta." }
+]
+
+books.each do |attributes|
+  Book.find_or_create_by!(title: attributes[:title], author_name: attributes[:author_name]) do |book|
+    book.assign_attributes(attributes)
+  end
+end
