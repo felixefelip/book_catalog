@@ -25,5 +25,31 @@
       "description": "Descrição",
       "processing": "Salvando..."
     }
+  },
+  "layout": {
+    "sign_out": "Sair"
+  },
+  "sessions": {
+    "new": {
+      "title": "Entrar",
+      "email_address": "E-mail",
+      "password": "Senha",
+      "submit": "Entrar",
+      "forgot_password": "Esqueceu a senha?"
+    }
+  },
+  "passwords": {
+    "new": {
+      "title": "Esqueceu a senha?",
+      "email_address": "E-mail",
+      "submit": "Enviar instruções",
+      "back": "Voltar para o login"
+    },
+    "edit": {
+      "title": "Redefinir senha",
+      "password": "Nova senha",
+      "password_confirmation": "Confirmação da senha",
+      "submit": "Salvar"
+    }
   }
 }

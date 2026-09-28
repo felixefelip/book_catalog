@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "Books", type: :request do
+  let(:user) { create(:user) }
+
+  before { sign_in_as(user) }
+
   let(:valid_params) do
     {
       book: {
@@ -122,6 +126,16 @@ RSpec.describe "Books", type: :request do
         follow_redirect!
         expect(inertia.props[:errors]).to include("author_name" => [ "Autor não pode ficar em branco" ])
       end
+    end
+  end
+
+  context "when not signed in" do
+    before { delete session_path }
+
+    it "redirects to the sign in page" do
+      get books_path
+
+      expect(response).to redirect_to(new_session_path)
     end
   end
 end
