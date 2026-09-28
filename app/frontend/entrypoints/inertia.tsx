@@ -1,6 +1,6 @@
 import { createInertiaApp } from "@inertiajs/react";
 
-import AppLayout from "@/layouts/app-layout";
+import AppLayout from "@/layouts/app_layout";
 import { changeLocale } from "@/lib/i18n";
 
 import "./application.css";

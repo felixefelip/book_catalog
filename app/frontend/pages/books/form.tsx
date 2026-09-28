@@ -12,14 +12,12 @@ import {
 } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { toFieldErrors } from "@/lib/field_errors";
 
 type FormProps = FormComponentProps<BookFormType> & {
   book: Book;
   submitText: string;
 };
-
-const toFieldErrors = (messages?: string[]) =>
-  messages?.map((message) => ({ message }));
 
 export default function Form({ book, submitText, ...formProps }: FormProps) {
   const { t } = useTranslation();

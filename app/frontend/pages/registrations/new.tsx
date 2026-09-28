@@ -9,6 +9,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { toFieldErrors } from "@/lib/field_errors";
 
 type RegistrationFormType = {
   name: string;
@@ -17,9 +18,6 @@ type RegistrationFormType = {
   password: string;
   password_confirmation: string;
 };
-
-const toFieldErrors = (messages?: string[]) =>
-  messages?.map((message) => ({ message }));
 
 export default function New() {
   const { t } = useTranslation();

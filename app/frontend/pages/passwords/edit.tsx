@@ -9,6 +9,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { toFieldErrors } from "@/lib/field_errors";
 
 interface EditProps {
   token: string;
@@ -18,9 +19,6 @@ type PasswordFormType = {
   password: string;
   password_confirmation: string;
 };
-
-const toFieldErrors = (messages?: string[]) =>
-  messages?.map((message) => ({ message }));
 
 export default function Edit({ token }: EditProps) {
   const { t } = useTranslation();
