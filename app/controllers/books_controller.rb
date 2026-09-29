@@ -8,7 +8,7 @@ class BooksController < InertiaController
   before_action -> { authorize! :destroy, @book }, only: :destroy
 
   def index
-    books = Book.with_attached_cover.includes(:genres)
+    books = Book.with_attached_cover.includes(:authors, :genres)
       .filter_by(filters.merge(creator: (Current.user if filters[:mine])))
       .order(created_at: :desc, id: :desc).page(params[:page])
 
@@ -72,19 +72,20 @@ class BooksController < InertiaController
     end
 
     def filters
-      @filters ||= params.permit(:title, :author_name, :year_from, :year_to, :mine, genres: []).to_h.tap do |filters|
-        filters[:genres] = filters[:genres]&.compact_blank
+      @filters ||= params.permit(:title, :year_from, :year_to, :mine, authors: [], genres: []).to_h.tap do |filters|
+        %i[authors genres].each { |key| filters[key] = filters[key]&.compact_blank }
         filters.compact_blank!
         filters.delete(:mine) unless authenticated?
       end
     end
 
     def book_params
-      params.expect(book: [ :title, :author_name, :published_year, :description, :open_library_cover_id, genre_names: [] ])
+      params.expect(book: [ :title, :published_year, :description, :open_library_cover_id, author_names: [], genre_names: [] ])
     end
 
     def serialize_book(book)
-      book.as_json(only: %i[id title author_name published_year description]).merge(
+      book.as_json(only: %i[id title published_year description]).merge(
+        "authors" => book.author_names,
         "genres" => book.genre_names,
         "cover_url" => (url_for(book.cover.variant(:thumb)) if book.cover.attached?),
         "can" => { "update" => can?(:update, book), "destroy" => can?(:destroy, book) }

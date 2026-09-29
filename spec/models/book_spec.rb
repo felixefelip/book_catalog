@@ -10,16 +10,14 @@ RSpec.describe Book, type: :model do
     it { should validate_numericality_of(:published_year).only_integer.allow_nil }
   end
 
-  it "stores blank author and description as nil" do
-    book = create(:book, author_name: "  ", description: "")
-
-    expect(book).to have_attributes(author_name: nil, description: nil)
+  it "stores a blank description as nil" do
+    expect(create(:book, description: "  ").description).to be_nil
   end
 
   describe ".filter_by" do
-    let!(:dom_casmurro) { create(:book, title: "Dom Casmurro", author_name: "Machado de Assis", genre_names: [ "Romance" ], published_year: 1899) }
-    let!(:duna) { create(:book, title: "Duna", author_name: "Frank Herbert", genre_names: [ "Ficção científica" ], published_year: 1965) }
-    let!(:fundacao) { create(:book, title: "Fundação", author_name: "Isaac Asimov", genre_names: [ "Ficção científica" ], published_year: 1951) }
+    let!(:dom_casmurro) { create(:book, title: "Dom Casmurro", author_names: [ "Machado de Assis" ], genre_names: [ "Romance" ], published_year: 1899) }
+    let!(:duna) { create(:book, title: "Duna", author_names: [ "Frank Herbert" ], genre_names: [ "Ficção científica" ], published_year: 1965) }
+    let!(:fundacao) { create(:book, title: "Fundação", author_names: [ "Isaac Asimov" ], genre_names: [ "Ficção científica" ], published_year: 1951) }
 
     it "returns every book when no filter is given" do
       expect(Book.filter_by({})).to contain_exactly(dom_casmurro, duna, fundacao)
@@ -29,8 +27,9 @@ RSpec.describe Book, type: :model do
       expect(Book.filter_by(title: "casm")).to contain_exactly(dom_casmurro)
     end
 
-    it "filters by part of the author name ignoring case" do
-      expect(Book.filter_by(author_name: "HERBERT")).to contain_exactly(duna)
+    it "filters by any of the given authors" do
+      expect(Book.filter_by(authors: [ "Frank Herbert" ])).to contain_exactly(duna)
+      expect(Book.filter_by(authors: [ "Frank Herbert", "Isaac Asimov" ])).to contain_exactly(duna, fundacao)
     end
 
     it "treats LIKE wildcards as literal characters" do

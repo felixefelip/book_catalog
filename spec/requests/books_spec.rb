@@ -9,7 +9,7 @@ RSpec.describe "Books", type: :request do
     {
       book: {
         title: "Dom Casmurro",
-        author_name: "Machado de Assis",
+        author_names: [ "Machado de Assis" ],
         published_year: 1899,
         genre_names: [ "Romance", "Realismo" ],
         description: "Bentinho e Capitu."
@@ -61,7 +61,7 @@ RSpec.describe "Books", type: :request do
       create(:book, title: "Dom Casmurro", genre_names: [ "Romance" ])
       create(:book, title: "Duna", genre_names: [ "Ficção científica" ])
 
-      get books_path, params: { title: "dun", genres: [ "Ficção científica", "" ], author_name: "" }
+      get books_path, params: { title: "dun", genres: [ "Ficção científica", "" ], authors: [ "" ] }
 
       expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Duna" ])
       expect(inertia.props[:filters]).to eq("title" => "dun", "genres" => [ "Ficção científica" ])
@@ -93,6 +93,17 @@ RSpec.describe "Books", type: :request do
 
       expect(inertia.props[:books].size).to eq(1)
       expect(inertia.props[:books_count]).to eq(2)
+    end
+
+    it "filters the books by any of the selected authors" do
+      create(:book, title: "Dom Casmurro", author_names: [ "Machado de Assis" ])
+      create(:book, title: "Duna", author_names: [ "Frank Herbert" ])
+      create(:book, title: "Clean Code", author_names: [ "Robert C. Martin" ])
+
+      get books_path, params: { authors: [ "Machado de Assis", "Frank Herbert" ] }
+
+      expect(inertia.props[:books].map { |book| book["title"] }).to contain_exactly("Dom Casmurro", "Duna")
+      expect(inertia.props[:books].first["authors"]).to be_one
     end
 
     it "filters the books by any of the selected genres" do
@@ -210,6 +221,7 @@ RSpec.describe "Books", type: :request do
 
         created_book = Book.last!
         expect(created_book).to have_attributes(title: "Dom Casmurro", published_year: 1899)
+        expect(created_book.author_names).to eq([ "Machado de Assis" ])
         expect(created_book.genre_names).to eq([ "Realismo", "Romance" ])
         expect(created_book.creator).to eq(user)
         expect(created_book.cover).not_to be_attached
@@ -230,11 +242,12 @@ RSpec.describe "Books", type: :request do
     context "with a work without author, year, description or genres" do
       it "creates the book with only the title" do
         post books_path, params: {
-          book: { title: "Dom Casmurro", author_name: "", published_year: nil, description: nil, genre_names: [] }
+          book: { title: "Dom Casmurro", author_names: [], published_year: nil, description: nil, genre_names: [] }
         }, as: :json
 
         created_book = Book.last!
-        expect(created_book).to have_attributes(title: "Dom Casmurro", author_name: nil, published_year: nil, description: nil)
+        expect(created_book).to have_attributes(title: "Dom Casmurro", published_year: nil, description: nil)
+        expect(created_book.authors).to be_empty
         expect(created_book.genres).to be_empty
       end
     end

@@ -7,11 +7,13 @@ pt-BR:
     attributes:
       book:
         title: Título
-        author_name: Autor
+        authors: Autores
         published_year: Ano de publicação
         genres: Gêneros
         description: Descrição
         cover: Capa
+      author:
+        name: Nome
       genre:
         name: Nome
       user:

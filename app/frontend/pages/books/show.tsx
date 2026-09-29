@@ -45,8 +45,8 @@ export default function Show({ book }: ShowProps) {
               <CardTitle>
                 <h1 className="text-xl">{book.title}</h1>
               </CardTitle>
-              {book.author_name && (
-                <CardDescription>{book.author_name}</CardDescription>
+              {book.authors.length > 0 && (
+                <CardDescription>{book.authors.join(", ")}</CardDescription>
               )}
               <p className="text-xs text-muted-foreground">
                 {t("books.show.created_by", {

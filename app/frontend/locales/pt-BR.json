@@ -14,7 +14,10 @@
     },
     "filters": {
       "title": "Título",
-      "author_name": "Autor",
+      "authors": "Autores",
+      "all_authors": "Todos os autores",
+      "loading_authors": "Carregando autores...",
+      "no_authors": "Nenhum autor encontrado.",
       "genre": "Gênero",
       "all_genres": "Todos os gêneros",
       "loading_genres": "Carregando gêneros...",
@@ -45,7 +48,7 @@
     },
     "form": {
       "title": "Título",
-      "author_name": "Autor",
+      "authors": "Autores",
       "published_year": "Ano de publicação",
       "genres": "Gêneros",
       "no_genres": "Nenhum gênero informado.",

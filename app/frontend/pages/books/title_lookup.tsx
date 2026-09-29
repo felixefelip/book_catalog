@@ -148,7 +148,7 @@ export default function TitleLookup({
                 <div className="min-w-0">
                   <p className="truncate font-medium">{book.title}</p>
                   <p className="truncate text-muted-foreground">
-                    {[book.author_name, book.published_year]
+                    {[book.authors.join(", "), book.published_year]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>

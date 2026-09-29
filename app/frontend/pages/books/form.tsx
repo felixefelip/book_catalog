@@ -39,7 +39,7 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
 
   const values = work
     ? {
-        author_name: work.author_name,
+        authors: work.authors,
         published_year: work.published_year,
         genres: work.subjects,
         description: work.description,
@@ -65,7 +65,7 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
       transform={() => ({
         book: work && {
           title: work.title,
-          author_name: work.author_name,
+          author_names: work.authors,
           published_year: work.published_year,
           description: work.description,
           genre_names: work.subjects,
@@ -89,15 +89,13 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="author_name">
-              {t("books.form.author_name")}
-            </FieldLabel>
+            <FieldLabel htmlFor="authors">{t("books.form.authors")}</FieldLabel>
             <Input
               type="text"
-              id="author_name"
+              id="authors"
               readOnly
               className={READ_ONLY_FIELD}
-              value={values.author_name ?? ""}
+              value={values.authors.join(", ")}
             />
           </Field>
 

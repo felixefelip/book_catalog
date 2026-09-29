@@ -32,7 +32,7 @@ RSpec.describe OpenLibrary::Client do
         {
           id: "OL1003040W",
           title: "Dom Casmurro",
-          author_name: "Machado de Assis, Helen Caldwell",
+          authors: [ "Machado de Assis", "Helen Caldwell" ],
           published_year: 1899,
           subjects: %w[Fiction Adultery Jealousy Brazil Memory Religion],
           cover_id: 647501,
@@ -45,7 +45,7 @@ RSpec.describe OpenLibrary::Client do
       stub_response({ docs: [ { key: "/works/OL1W", title: "Untitled" } ] })
 
       expect(client.search("untitled").first)
-        .to include(author_name: "", published_year: nil, subjects: [], cover_id: nil, cover_url: nil)
+        .to include(authors: [], published_year: nil, subjects: [], cover_id: nil, cover_url: nil)
     end
 
     it "raises an error when the API responds with a failure" do

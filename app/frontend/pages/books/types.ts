@@ -1,7 +1,7 @@
 export interface Book {
   id: number
   title: string
-  author_name: string | null
+  authors: string[]
   published_year: number | null
   genres: string[]
   description: string | null
@@ -9,14 +9,15 @@ export interface Book {
   can: { update: boolean; destroy: boolean }
 }
 
-export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'genres' | 'can'> & {
+export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'authors' | 'genres' | 'can'> & {
+  author_names: string[]
   genre_names: string[]
   open_library_cover_id: number | null
 }
 
 export type BookFilters = {
   title?: string
-  author_name?: string
+  authors?: string[]
   genres?: string[]
   year_from?: string
   year_to?: string
@@ -26,7 +27,7 @@ export type BookFilters = {
 export interface OpenLibraryBook {
   id: string
   title: string
-  author_name: string
+  authors: string[]
   published_year: number | null
   subjects: string[]
   cover_id: number | null

@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import {
   Combobox,
@@ -17,31 +16,43 @@ import {
 const DEBOUNCE_MS = 300;
 const LOAD_MORE_THRESHOLD_PX = 48;
 
-type GenrePage = { genres: string[]; next_page: number | null };
+type NamesPage = { names: string[]; next_page: number | null };
 
-async function fetchGenres(query: string, page: number, signal: AbortSignal) {
+async function fetchNames(url: string, query: string, page: number, signal: AbortSignal) {
   const params = new URLSearchParams({ q: query, page: String(page) });
-  const response = await fetch(`/genres?${params}`, {
+  const response = await fetch(`${url}?${params}`, {
     signal,
     headers: { Accept: "application/json" },
   });
-  if (!response.ok) throw new Error(`Genres request failed: ${response.status}`);
+  if (!response.ok) throw new Error(`Request to ${url} failed: ${response.status}`);
 
-  return (await response.json()) as GenrePage;
+  return (await response.json()) as NamesPage;
 }
 
-type GenreFilterProps = {
+type RemoteMultiSelectProps = {
   id: string;
+  name: string;
+  url: string;
   defaultValue: string[];
+  placeholder: string;
+  loadingText: string;
+  emptyText: string;
 };
 
-export default function GenreFilter({ id, defaultValue }: GenreFilterProps) {
-  const { t } = useTranslation();
+export default function RemoteMultiSelect({
+  id,
+  name,
+  url,
+  defaultValue,
+  placeholder,
+  loadingText,
+  emptyText,
+}: RemoteMultiSelectProps) {
   const anchor = useComboboxAnchor();
   const [selected, setSelected] = useState(defaultValue);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [genres, setGenres] = useState<string[]>([]);
+  const [options, setOptions] = useState<string[]>([]);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const request = useRef<AbortController | null>(null);
@@ -53,8 +64,8 @@ export default function GenreFilter({ id, defaultValue }: GenreFilterProps) {
     setLoading(true);
 
     try {
-      const result = await fetchGenres(search, page, controller.signal);
-      setGenres((current) => (page === 1 ? result.genres : [...current, ...result.genres]));
+      const result = await fetchNames(url, search, page, controller.signal);
+      setOptions((current) => (page === 1 ? result.names : [...current, ...result.names]));
       setNextPage(result.next_page);
     } catch {
       if (!controller.signal.aborted) setNextPage(null);
@@ -82,7 +93,7 @@ export default function GenreFilter({ id, defaultValue }: GenreFilterProps) {
     <>
       <Combobox
         multiple
-        items={genres}
+        items={options}
         filter={null}
         value={selected}
         onValueChange={setSelected}
@@ -100,7 +111,7 @@ export default function GenreFilter({ id, defaultValue }: GenreFilterProps) {
                 ))}
                 <ComboboxChipsInput
                   id={id}
-                  placeholder={values.length ? undefined : t("books.filters.all_genres")}
+                  placeholder={values.length ? undefined : placeholder}
                 />
               </Fragment>
             )}
@@ -108,20 +119,20 @@ export default function GenreFilter({ id, defaultValue }: GenreFilterProps) {
         </ComboboxChips>
         <ComboboxContent anchor={anchor}>
           <ComboboxEmpty>
-            {loading ? t("books.filters.loading_genres") : t("books.filters.no_genres")}
+            {loading ? loadingText : emptyText}
           </ComboboxEmpty>
           <ComboboxList onScroll={handleScroll}>
-            {(genre: string) => (
-              <ComboboxItem key={genre} value={genre}>
-                {genre}
+            {(option: string) => (
+              <ComboboxItem key={option} value={option}>
+                {option}
               </ComboboxItem>
             )}
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
 
-      {selected.map((genre) => (
-        <input key={genre} type="hidden" name="genres[]" value={genre} />
+      {selected.map((value) => (
+        <input key={value} type="hidden" name={`${name}[]`} value={value} />
       ))}
     </>
   );

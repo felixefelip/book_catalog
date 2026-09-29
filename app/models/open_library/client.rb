@@ -54,7 +54,7 @@ module OpenLibrary
         {
           id: doc["key"].delete_prefix("/works/"),
           title: doc["title"],
-          author_name: Array(doc["author_name"]).join(", "),
+          authors: Array(doc["author_name"]),
           published_year: doc["first_publish_year"],
           subjects: Array(doc["subject"]),
           cover_id: doc["cover_i"],

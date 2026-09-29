@@ -132,7 +132,7 @@ export default function Index({
                           </h2>
                         </CardTitle>
                         <CardDescription>
-                          {[book.author_name, book.published_year]
+                          {[book.authors.join(", "), book.published_year]
                             .filter(Boolean)
                             .join(" · ")}
                         </CardDescription>

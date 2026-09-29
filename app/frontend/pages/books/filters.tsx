@@ -2,8 +2,8 @@ import { Form, Link, usePage } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 import { cn } from "cn";
 
-import GenreFilter from "./genre_filter";
 import type { BookFilters } from "./types";
+import RemoteMultiSelect from "@/components/remote_multi_select";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ export default function Filters({ filters }: FiltersProps) {
     >
       {({ processing }) => (
         <>
-          <Field className="lg:col-span-2">
+          <Field className="lg:col-span-2 lg:self-start">
             <FieldLabel htmlFor="filter_title">{t("books.filters.title")}</FieldLabel>
             <Input
               type="search"
@@ -39,21 +39,30 @@ export default function Filters({ filters }: FiltersProps) {
             />
           </Field>
 
-          <Field className="lg:col-span-2">
-            <FieldLabel htmlFor="filter_author_name">
-              {t("books.filters.author_name")}
-            </FieldLabel>
-            <Input
-              type="search"
-              name="author_name"
-              id="filter_author_name"
-              defaultValue={filters.author_name ?? ""}
+          <Field className="lg:col-span-2 lg:self-start">
+            <FieldLabel htmlFor="filter_authors">{t("books.filters.authors")}</FieldLabel>
+            <RemoteMultiSelect
+              id="filter_authors"
+              name="authors"
+              url="/authors"
+              defaultValue={filters.authors ?? []}
+              placeholder={t("books.filters.all_authors")}
+              loadingText={t("books.filters.loading_authors")}
+              emptyText={t("books.filters.no_authors")}
             />
           </Field>
 
-          <Field className="lg:col-span-2">
+          <Field className="lg:col-span-2 lg:self-start">
             <FieldLabel htmlFor="filter_genres">{t("books.filters.genre")}</FieldLabel>
-            <GenreFilter id="filter_genres" defaultValue={filters.genres ?? []} />
+            <RemoteMultiSelect
+              id="filter_genres"
+              name="genres"
+              url="/genres"
+              defaultValue={filters.genres ?? []}
+              placeholder={t("books.filters.all_genres")}
+              loadingText={t("books.filters.loading_genres")}
+              emptyText={t("books.filters.no_genres")}
+            />
           </Field>
 
           <Field>

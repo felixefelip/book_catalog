@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_29_000052) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_29_000053) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_000052) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "authors", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((name)::text)", name: "index_authors_on_lower_name", unique: true
+  end
+
+  create_table "book_authors", force: :cascade do |t|
+    t.bigint "book_id", null: false
+    t.bigint "author_id", null: false
+    t.index ["author_id"], name: "index_book_authors_on_author_id"
+    t.index ["book_id", "author_id"], name: "index_book_authors_on_book_id_and_author_id", unique: true
+  end
+
   create_table "book_genres", force: :cascade do |t|
     t.bigint "book_id", null: false
     t.bigint "genre_id", null: false
@@ -52,7 +66,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_000052) do
   create_table "books", force: :cascade do |t|
     t.bigint "creator_id", null: false
     t.string "title", null: false
-    t.string "author_name"
     t.integer "published_year"
     t.string "description"
     t.datetime "created_at", null: false
@@ -88,6 +101,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_000052) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "book_authors", "authors"
+  add_foreign_key "book_authors", "books"
   add_foreign_key "book_genres", "books"
   add_foreign_key "book_genres", "genres"
   add_foreign_key "books", "users", column: "creator_id"
