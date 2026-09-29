@@ -13,6 +13,14 @@ RSpec.describe User, type: :model do
     it { should_not allow_value("leitor").for(:email_address) }
   end
 
+  describe "associations" do
+    it { should have_many(:books).with_foreign_key(:creator_id).dependent(:destroy) }
+  end
+
+  it "joins the name and last name into the full name" do
+    expect(build(:user, name: "Machado", last_name: "de Assis").full_name).to eq("Machado de Assis")
+  end
+
   it "normalizes the email address" do
     expect(User.new(email_address: " Leitor@Example.COM ").email_address).to eq("leitor@example.com")
   end

@@ -1,6 +1,8 @@
 class Book < ApplicationRecord
   include Coverable, Genreable
 
+  belongs_to :creator, class_name: "User"
+
   normalizes :author_name, :description, with: ->(value) { value.strip.presence }
 
   scope :title_contains, ->(title) { where("title ILIKE ?", "%#{sanitize_sql_like(title)}%") if title.present? }

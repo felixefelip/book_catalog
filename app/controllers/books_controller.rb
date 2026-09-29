@@ -23,7 +23,12 @@ class BooksController < InertiaController
   end
 
   def show
-    render inertia: { book: serialize_book(@book) }
+    render inertia: {
+      book: serialize_book(@book).merge(
+        "creator_name" => @book.creator.full_name,
+        "created_on" => l(@book.created_at.to_date)
+      )
+    }
   end
 
   def new
@@ -35,7 +40,7 @@ class BooksController < InertiaController
   end
 
   def create
-    @book = Book.new(book_params)
+    @book = Current.user.books.new(book_params)
 
     if @book.save
       redirect_to books_path, notice: t(".success")

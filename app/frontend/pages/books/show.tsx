@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 
 interface ShowProps {
-  book: Book;
+  book: Book & { creator_name: string; created_on: string };
 }
 
 export default function Show({ book }: ShowProps) {
@@ -49,6 +49,12 @@ export default function Show({ book }: ShowProps) {
               {book.author_name && (
                 <CardDescription>{book.author_name}</CardDescription>
               )}
+              <p className="text-xs text-muted-foreground">
+                {t("books.show.created_by", {
+                  name: book.creator_name,
+                  date: book.created_on,
+                })}
+              </p>
             </CardHeader>
 
             <CardContent className="flex flex-col gap-4">

@@ -1,3 +1,7 @@
+admin = User.find_or_create_by!(email_address: "admin@example.com") do |user|
+  user.assign_attributes(name: "Admin", last_name: "do Catálogo", password: "password")
+end
+
 books = [
   { title: "Dom Casmurro", author_name: "Machado de Assis", published_year: 1899, genre_names: [ "Romance" ],
     description: "Bentinho relembra sua vida e o ciúme que sente de Capitu, sua amiga de infância e esposa." },
@@ -67,6 +71,6 @@ books = [
 
 books.each do |attributes|
   Book.find_or_create_by!(title: attributes[:title], author_name: attributes[:author_name]) do |book|
-    book.assign_attributes(attributes)
+    book.assign_attributes(attributes.merge(creator: admin))
   end
 end

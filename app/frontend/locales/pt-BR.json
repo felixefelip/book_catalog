@@ -23,7 +23,8 @@
     "show": {
       "back": "Voltar para a lista",
       "edit": "Editar",
-      "no_description": "Este livro ainda não tem descrição."
+      "no_description": "Este livro ainda não tem descrição.",
+      "created_by": "Cadastrado por {{name}} em {{date}}"
     },
     "new": {
       "title": "Novo livro",

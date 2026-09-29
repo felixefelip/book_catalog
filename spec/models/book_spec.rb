@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe Book, type: :model do
+  describe "associations" do
+    it { should belong_to(:creator).class_name("User") }
+  end
+
   describe "validations" do
     it { should validate_presence_of(:title) }
     it { should validate_numericality_of(:published_year).only_integer.allow_nil }

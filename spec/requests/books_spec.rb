@@ -145,7 +145,9 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:book]).to include(
         "id" => book.id,
         "title" => book.title,
-        "description" => "Um guia sobre design orientado a objetos."
+        "description" => "Um guia sobre design orientado a objetos.",
+        "creator_name" => "Machado de Assis",
+        "created_on" => I18n.l(book.created_at.to_date)
       )
     end
   end
@@ -171,9 +173,12 @@ RSpec.describe "Books", type: :request do
         expect { post books_path, params: valid_params }.to change(Book, :count).by(1)
 
         expect(response).to redirect_to(books_path)
-        expect(Book.last).to have_attributes(title: "Dom Casmurro", published_year: 1899)
-        expect(Book.last.genre_names).to eq([ "Realismo", "Romance" ])
-        expect(Book.last.cover).not_to be_attached
+
+        created_book = Book.last!
+        expect(created_book).to have_attributes(title: "Dom Casmurro", published_year: 1899)
+        expect(created_book.genre_names).to eq([ "Realismo", "Romance" ])
+        expect(created_book.creator).to eq(user)
+        expect(created_book.cover).not_to be_attached
 
         follow_redirect!
         expect_inertia.to have_flash(notice: "Livro cadastrado com sucesso.")
@@ -194,8 +199,9 @@ RSpec.describe "Books", type: :request do
           book: { title: "Dom Casmurro", author_name: "", published_year: nil, description: nil, genre_names: [] }
         }, as: :json
 
-        expect(Book.last).to have_attributes(title: "Dom Casmurro", author_name: nil, published_year: nil, description: nil)
-        expect(Book.last.genres).to be_empty
+        created_book = Book.last!
+        expect(created_book).to have_attributes(title: "Dom Casmurro", author_name: nil, published_year: nil, description: nil)
+        expect(created_book.genres).to be_empty
       end
     end
 
