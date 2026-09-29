@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_28_050710) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_29_000052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,20 +42,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_28_050710) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "book_genres", force: :cascade do |t|
+    t.bigint "book_id", null: false
+    t.bigint "genre_id", null: false
+    t.index ["book_id", "genre_id"], name: "index_book_genres_on_book_id_and_genre_id", unique: true
+    t.index ["genre_id"], name: "index_book_genres_on_genre_id"
+  end
+
   create_table "books", force: :cascade do |t|
     t.string "title", null: false
     t.string "author_name", null: false
     t.integer "published_year", null: false
-    t.string "genre", null: false
     t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "genres", force: :cascade do |t|
-    t.string "description"
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index "lower((name)::text)", name: "index_genres_on_lower_name", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -79,5 +86,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_28_050710) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "book_genres", "books"
+  add_foreign_key "book_genres", "genres"
   add_foreign_key "sessions", "users"
 end

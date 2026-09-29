@@ -11,7 +11,7 @@ RSpec.describe "Books", type: :request do
         title: "Dom Casmurro",
         author_name: "Machado de Assis",
         published_year: 1899,
-        genre: "Romance",
+        genre_names: [ "Romance", "Realismo" ],
         description: "Bentinho e Capitu."
       }
     }
@@ -58,8 +58,8 @@ RSpec.describe "Books", type: :request do
     end
 
     it "filters the books by the given params" do
-      create(:book, title: "Dom Casmurro", genre: "Romance")
-      create(:book, title: "Duna", genre: "Ficção científica")
+      create(:book, title: "Dom Casmurro", genre_names: [ "Romance" ])
+      create(:book, title: "Duna", genre_names: [ "Ficção científica" ])
 
       get books_path, params: { title: "dun", genre: "Ficção científica", author_name: "" }
 
@@ -67,12 +67,22 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:filters]).to eq("title" => "dun", "genre" => "Ficção científica")
     end
 
+    it "includes the genres of each book" do
+      create(:book, genre_names: [ "Romance", "Drama" ])
+
+      get books_path
+
+      expect(inertia.props[:books].first["genres"]).to eq([ "Drama", "Romance" ])
+    end
+
     it "lists the available genres" do
-      create(:book, genre: "Romance")
-      create(:book, genre: "Ficção científica")
-      create(:book, genre: "Romance")
+      create(:book, genre_names: [ "Romance" ])
+      create(:book, genre_names: [ "Ficção científica" ])
+      create(:book, genre_names: [ "Romance" ])
 
       get books_path, params: { genre: "Romance" }
+
+      create(:genre, name: "Sem livros")
 
       expect(inertia.props[:genres]).to eq([ "Ficção científica", "Romance" ])
     end
@@ -145,7 +155,15 @@ RSpec.describe "Books", type: :request do
       get new_book_path
 
       expect_inertia.to render_component("books/new")
-      expect(inertia.props[:book]).to include("id" => nil, "title" => nil)
+      expect(inertia.props[:book]).to include("id" => nil, "title" => nil, "genres" => [])
+    end
+
+    it "lists the available genres" do
+      create(:book, genre_names: [ "Romance" ])
+
+      get new_book_path
+
+      expect(inertia.props[:genres]).to eq([ "Romance" ])
     end
 
     it "shares the current locale" do
@@ -162,6 +180,7 @@ RSpec.describe "Books", type: :request do
 
         expect(response).to redirect_to(books_path)
         expect(Book.last).to have_attributes(title: "Dom Casmurro", published_year: 1899)
+        expect(Book.last.genre_names).to eq([ "Realismo", "Romance" ])
         expect(Book.last.cover).not_to be_attached
 
         follow_redirect!
@@ -174,6 +193,19 @@ RSpec.describe "Books", type: :request do
         post books_path, params: { book: valid_params[:book].merge(cover: fixture_file_upload("cover.png", "image/png")) }
 
         expect(Book.last.cover).to be_attached
+      end
+    end
+
+    context "with an Open Library cover" do
+      it "downloads and attaches the cover" do
+        client = instance_double(OpenLibrary::Client)
+        allow(OpenLibrary::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:cover).with(647501)
+          .and_return(io: file_fixture("cover.png").open, filename: "open-library-647501.jpg", content_type: "image/png")
+
+        post books_path, params: { book: valid_params[:book].merge(open_library_cover_id: "647501") }
+
+        expect(Book.last.cover.filename.to_s).to eq("open-library-647501.jpg")
       end
     end
 
@@ -193,7 +225,7 @@ RSpec.describe "Books", type: :request do
     context "with invalid params" do
       it "does not create the book and redirects back with translated errors" do
         expect {
-          post books_path, params: { book: valid_params[:book].merge(title: "", published_year: "abc") }
+          post books_path, params: { book: valid_params[:book].merge(title: "", published_year: "abc", genre_names: [ "" ]) }
         }.not_to change(Book, :count)
 
         expect(response).to redirect_to(new_book_path)
@@ -202,7 +234,8 @@ RSpec.describe "Books", type: :request do
         expect_inertia.to render_component("books/new")
         expect(inertia.props[:errors]).to include(
           "title" => [ "Título não pode ficar em branco" ],
-          "published_year" => [ "Ano de publicação não é um número" ]
+          "published_year" => [ "Ano de publicação não é um número" ],
+          "genres" => [ "Gêneros não pode ficar em branco" ]
         )
       end
     end
@@ -250,6 +283,25 @@ RSpec.describe "Books", type: :request do
         follow_redirect!
         expect_inertia.to have_flash(notice: "Livro atualizado com sucesso.")
       end
+    end
+
+    it "replaces the genres" do
+      patch book_path(book), params: { book: { genre_names: [ "Refatoração", "Ruby" ] } }
+
+      expect(book.reload.genre_names).to eq([ "Refatoração", "Ruby" ])
+    end
+
+    it "keeps the genres when none are sent" do
+      patch book_path(book), params: { book: { title: "99 Bottles of OOP" } }
+
+      expect(book.reload.genre_names).to eq([ "Programming" ])
+    end
+
+    it "does not remove every genre" do
+      patch book_path(book), params: { book: { genre_names: [ "" ] } }
+
+      expect(response).to redirect_to(edit_book_path(book))
+      expect(book.reload.genre_names).to eq([ "Programming" ])
     end
 
     context "with invalid params" do

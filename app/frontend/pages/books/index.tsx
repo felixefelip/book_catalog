@@ -126,9 +126,13 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
                             {book.author_name}
                             {book.published_year && ` · ${book.published_year}`}
                           </CardDescription>
-                          <Badge variant="secondary" className="mt-1">
-                            {book.genre}
-                          </Badge>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {book.genres.map((genre) => (
+                              <Badge key={genre} variant="secondary">
+                                {genre}
+                              </Badge>
+                            ))}
+                          </div>
                         </CardHeader>
                         {book.description && (
                           <CardContent>

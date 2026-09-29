@@ -9,9 +9,11 @@ pt-BR:
         title: Título
         author_name: Autor
         published_year: Ano de publicação
-        genre: Gênero
+        genres: Gêneros
         description: Descrição
         cover: Capa
+      genre:
+        name: Nome
       user:
         name: Nome
         last_name: Sobrenome
@@ -34,6 +36,9 @@ pt-BR:
       success: Livro atualizado com sucesso.
     destroy:
       success: Livro excluído com sucesso.
+
+  open_library:
+    unavailable: Não foi possível consultar a Open Library. Tente novamente mais tarde.
 
   sessions:
     create:

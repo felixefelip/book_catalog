@@ -6,7 +6,7 @@ class BooksController < InertiaController
 
   def index
     filters = params.permit(:title, :author_name, :genre, :year_from, :year_to).compact_blank.to_h
-    books = Book.with_attached_cover.filter_by(filters).order(created_at: :desc, id: :desc).page(params[:page])
+    books = Book.with_attached_cover.includes(:genres).filter_by(filters).order(created_at: :desc, id: :desc).page(params[:page])
 
     return redirect_to books_path(filters.merge(page: books.total_pages)) if books.out_of_range? && books.total_pages.positive?
 
@@ -18,7 +18,7 @@ class BooksController < InertiaController
         total_count: books.total_count
       },
       filters: filters,
-      genres: Book.distinct.order(:genre).pluck(:genre)
+      genres: genre_names
     }
   end
 
@@ -27,11 +27,11 @@ class BooksController < InertiaController
   end
 
   def new
-    render inertia: { book: serialize_book(Book.new) }
+    render inertia: { book: serialize_book(Book.new), genres: genre_names }
   end
 
   def edit
-    render inertia: { book: serialize_book(@book) }
+    render inertia: { book: serialize_book(@book), genres: genre_names }
   end
 
   def create
@@ -63,11 +63,16 @@ class BooksController < InertiaController
     end
 
     def book_params
-      params.expect(book: %i[title author_name published_year genre description cover])
+      params.expect(book: [ :title, :author_name, :published_year, :description, :cover, :open_library_cover_id, genre_names: [] ])
+    end
+
+    def genre_names
+      Genre.in_use.order(:name).pluck(:name)
     end
 
     def serialize_book(book)
-      book.as_json(only: %i[id title author_name published_year genre description]).merge(
+      book.as_json(only: %i[id title author_name published_year description]).merge(
+        "genres" => book.genre_names,
         "cover_url" => (url_for(book.cover.variant(:thumb)) if book.cover.attached?)
       )
     end

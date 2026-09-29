@@ -71,3 +71,5 @@ gem "vite_rails", "~> 3.11"
 gem "rails-i18n", "~> 8.1"
 
 gem "kaminari", "~> 1.2"
+
+gem "httparty", "~> 0.24"

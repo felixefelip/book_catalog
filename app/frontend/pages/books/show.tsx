@@ -56,10 +56,14 @@ export default function Show({ book }: ShowProps) {
                 </dt>
                 <dd>{book.published_year}</dd>
                 <dt className="text-muted-foreground">
-                  {t("books.form.genre")}
+                  {t("books.form.genres")}
                 </dt>
-                <dd>
-                  <Badge variant="secondary">{book.genre}</Badge>
+                <dd className="flex flex-wrap gap-1">
+                  {book.genres.map((genre) => (
+                    <Badge key={genre} variant="secondary">
+                      {genre}
+                    </Badge>
+                  ))}
                 </dd>
               </dl>
 
