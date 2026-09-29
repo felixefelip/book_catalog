@@ -53,7 +53,9 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
     setWork({ ...result, description: null });
     setLoadingDescription(true);
 
-    const description = await fetchOpenLibraryDescription(result.id).catch(() => null);
+    const description = await fetchOpenLibraryDescription(result.id).catch(
+      () => null,
+    );
     if (selectedWorkId.current !== result.id) return;
 
     setWork((current) => current && { ...current, description });
@@ -138,7 +140,9 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
               className={READ_ONLY_FIELD}
               value={values.description ?? ""}
               placeholder={
-                loadingDescription ? t("books.form.loading_description") : undefined
+                loadingDescription
+                  ? t("books.form.loading_description")
+                  : undefined
               }
             />
           </Field>
