@@ -75,6 +75,16 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:books].first["genres"]).to eq([ "Drama", "Romance" ])
     end
 
+    it "includes the total number of books regardless of the filters" do
+      create(:book, title: "Dom Casmurro", genre_names: [])
+      create(:book, title: "Duna", genre_names: [])
+
+      get books_path, params: { title: "dun" }
+
+      expect(inertia.props[:books].size).to eq(1)
+      expect(inertia.props[:books_count]).to eq(2)
+    end
+
     it "lists the available genres" do
       create(:book, genre_names: [ "Romance" ])
       create(:book, genre_names: [ "Ficção científica" ])

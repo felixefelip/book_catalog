@@ -32,12 +32,20 @@ interface IndexProps {
   pagination: Pagination;
   filters: BookFilters;
   genres: string[];
+  books_count: number;
 }
 
-export default function Index({ books, pagination, filters, genres }: IndexProps) {
+export default function Index({
+  books,
+  pagination,
+  filters,
+  genres,
+  books_count,
+}: IndexProps) {
   const { t } = useTranslation();
   const { flash } = usePage();
-  const hasBooks = genres.length > 0;
+  const hasBooks = books_count > 0;
+  const hasFilters = Object.keys(filters).length > 0;
 
   return (
     <>
@@ -51,7 +59,12 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
             <h1 className="text-2xl font-semibold">{t("books.index.title")}</h1>
             {hasBooks && (
               <span className="text-sm text-muted-foreground">
-                {t("books.index.count", { count: pagination.total_count })}
+                {hasFilters
+                  ? t("books.index.filtered_count", {
+                      filtered: pagination.total_count,
+                      count: books_count,
+                    })
+                  : t("books.index.count", { count: books_count })}
               </span>
             )}
           </div>

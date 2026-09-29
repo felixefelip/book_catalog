@@ -8,7 +8,9 @@
       "no_results": "Nenhum livro encontrado.",
       "no_results_hint": "Tente ajustar ou limpar os filtros.",
       "count_one": "{{count}} livro",
-      "count_other": "{{count}} livros"
+      "count_other": "{{count}} livros",
+      "filtered_count_one": "{{filtered}} de {{count}} livro",
+      "filtered_count_other": "{{filtered}} de {{count}} livros"
     },
     "filters": {
       "title": "Título",

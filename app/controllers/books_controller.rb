@@ -18,7 +18,8 @@ class BooksController < InertiaController
         total_count: books.total_count
       },
       filters: filters,
-      genres: genre_names
+      genres: genre_names,
+      books_count: Book.count
     }
   end
 
