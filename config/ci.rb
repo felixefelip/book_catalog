@@ -7,11 +7,11 @@ CI.run do
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
-  step "Tests: Rails", "bin/rails test"
-  step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
-
-  # Optional: Run system tests
-  # step "Tests: System", "bin/rails test:system"
+  step "Tests: Rails", "bundle exec rspec --exclude-pattern 'spec/system/**/*_spec.rb'"
+  step "Tests: System", "bundle exec rspec spec/system"
+  step "Tests: Frontend types", "npm run check"
+  step "Tests: Frontend", "npm test -- --run"
+  step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant && env RAILS_ENV=test bin/rails db:truncate_all"
 
   # Optional: set a green GitHub commit status to unblock PR merge.
   # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.
