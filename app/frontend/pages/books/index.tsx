@@ -31,7 +31,6 @@ interface IndexProps {
   books: Book[];
   pagination: Pagination;
   filters: BookFilters;
-  genres: string[];
   books_count: number;
 }
 
@@ -39,7 +38,6 @@ export default function Index({
   books,
   pagination,
   filters,
-  genres,
   books_count,
 }: IndexProps) {
   const { t } = useTranslation();
@@ -75,7 +73,7 @@ export default function Index({
         {hasBooks && (
           <Card>
             <CardContent>
-              <Filters filters={filters} genres={genres} />
+              <Filters filters={filters} />
             </CardContent>
           </Card>
         )}

@@ -22,7 +22,6 @@ class BooksController < InertiaController
         total_count: books.total_count
       },
       filters: filters,
-      genres: genre_names,
       books_count: Book.count
     }
   end
@@ -73,17 +72,15 @@ class BooksController < InertiaController
     end
 
     def filters
-      @filters ||= params.permit(:title, :author_name, :genre, :year_from, :year_to, :mine).compact_blank.to_h.tap do |filters|
+      @filters ||= params.permit(:title, :author_name, :year_from, :year_to, :mine, genres: []).to_h.tap do |filters|
+        filters[:genres] = filters[:genres]&.compact_blank
+        filters.compact_blank!
         filters.delete(:mine) unless authenticated?
       end
     end
 
     def book_params
       params.expect(book: [ :title, :author_name, :published_year, :description, :open_library_cover_id, genre_names: [] ])
-    end
-
-    def genre_names
-      Genre.in_use.order(:name).pluck(:name)
     end
 
     def serialize_book(book)

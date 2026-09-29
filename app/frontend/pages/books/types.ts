@@ -17,7 +17,7 @@ export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'genres' | 'can'> & {
 export type BookFilters = {
   title?: string
   author_name?: string
-  genre?: string
+  genres?: string[]
   year_from?: string
   year_to?: string
   mine?: string

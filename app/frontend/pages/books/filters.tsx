@@ -2,6 +2,7 @@ import { Form, Link, usePage } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 import { cn } from "cn";
 
+import GenreFilter from "./genre_filter";
 import type { BookFilters } from "./types";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -9,10 +10,9 @@ import { Input } from "@/components/ui/input";
 
 interface FiltersProps {
   filters: BookFilters;
-  genres: string[];
 }
 
-export default function Filters({ filters, genres }: FiltersProps) {
+export default function Filters({ filters }: FiltersProps) {
   const { t } = useTranslation();
   const { current_user } = usePage().props;
   const hasFilters = Object.keys(filters).length > 0;
@@ -52,20 +52,8 @@ export default function Filters({ filters, genres }: FiltersProps) {
           </Field>
 
           <Field className="lg:col-span-2">
-            <FieldLabel htmlFor="filter_genre">{t("books.filters.genre")}</FieldLabel>
-            <select
-              name="genre"
-              id="filter_genre"
-              defaultValue={filters.genre ?? ""}
-              className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
-            >
-              <option value="">{t("books.filters.all_genres")}</option>
-              {genres.map((genre) => (
-                <option key={genre} value={genre}>
-                  {genre}
-                </option>
-              ))}
-            </select>
+            <FieldLabel htmlFor="filter_genres">{t("books.filters.genre")}</FieldLabel>
+            <GenreFilter id="filter_genres" defaultValue={filters.genres ?? []} />
           </Field>
 
           <Field>

@@ -29,6 +29,16 @@ RSpec.describe Genre, type: :model do
     end
   end
 
+  describe ".name_contains" do
+    it "matches part of the name ignoring case and treating wildcards literally" do
+      romance = create(:genre, name: "Romance")
+      create(:genre, name: "Drama")
+
+      expect(Genre.name_contains("MAN")).to contain_exactly(romance)
+      expect(Genre.name_contains("%")).to be_empty
+    end
+  end
+
   describe ".in_use" do
     it "returns only genres with books" do
       create(:book, genre_names: [ "Romance" ])

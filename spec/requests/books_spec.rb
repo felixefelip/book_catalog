@@ -61,10 +61,10 @@ RSpec.describe "Books", type: :request do
       create(:book, title: "Dom Casmurro", genre_names: [ "Romance" ])
       create(:book, title: "Duna", genre_names: [ "Ficção científica" ])
 
-      get books_path, params: { title: "dun", genre: "Ficção científica", author_name: "" }
+      get books_path, params: { title: "dun", genres: [ "Ficção científica", "" ], author_name: "" }
 
       expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Duna" ])
-      expect(inertia.props[:filters]).to eq("title" => "dun", "genre" => "Ficção científica")
+      expect(inertia.props[:filters]).to eq("title" => "dun", "genres" => [ "Ficção científica" ])
     end
 
     it "filters the books created by the current user" do
@@ -95,16 +95,14 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:books_count]).to eq(2)
     end
 
-    it "lists the available genres" do
-      create(:book, genre_names: [ "Romance" ])
-      create(:book, genre_names: [ "Ficção científica" ])
-      create(:book, genre_names: [ "Romance" ])
+    it "filters the books by any of the selected genres" do
+      create(:book, title: "Dom Casmurro", genre_names: [ "Romance" ])
+      create(:book, title: "Duna", genre_names: [ "Ficção científica" ])
+      create(:book, title: "Clean Code", genre_names: [ "Programação" ])
 
-      get books_path, params: { genre: "Romance" }
+      get books_path, params: { genres: [ "Romance", "Ficção científica" ] }
 
-      create(:genre, name: "Sem livros")
-
-      expect(inertia.props[:genres]).to eq([ "Ficção científica", "Romance" ])
+      expect(inertia.props[:books].map { |book| book["title"] }).to contain_exactly("Dom Casmurro", "Duna")
     end
 
     context "with more books than fit in a page" do

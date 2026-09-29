@@ -14,7 +14,7 @@ import type { Pagination as PaginationData } from "@/types";
 interface PaginationNavProps {
   pagination: PaginationData;
   path: string;
-  params?: Record<string, string>;
+  params?: Record<string, string | string[]>;
 }
 
 function pageItems(current: number, total: number): (number | "ellipsis")[] {
@@ -34,12 +34,14 @@ export default function PaginationNav({ pagination, path, params = {} }: Paginat
   if (total_pages <= 1) return null;
 
   const pageHref = (page: number) => {
-    const query = new URLSearchParams({
-      ...params,
-      ...(page > 1 && { page: String(page) }),
-    }).toString();
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (Array.isArray(value)) value.forEach((item) => query.append(`${key}[]`, item));
+      else query.append(key, value);
+    });
+    if (page > 1) query.append("page", String(page));
 
-    return query ? `${path}?${query}` : path;
+    return query.size ? `${path}?${query}` : path;
   };
 
   return (

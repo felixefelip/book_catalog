@@ -5,7 +5,7 @@ module Book::Genreable
     has_many :book_genres, dependent: :destroy
     has_many :genres, -> { order(:name) }, through: :book_genres
 
-    scope :by_genre, ->(genre) { where(id: BookGenre.joins(:genre).where(genres: { name: genre }).select(:book_id)) if genre.present? }
+    scope :by_genres, ->(names) { where(id: BookGenre.joins(:genre).where(genres: { name: names }).select(:book_id)) if names.present? }
   end
 
   def genre_names

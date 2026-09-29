@@ -17,6 +17,8 @@
       "author_name": "Autor",
       "genre": "Gênero",
       "all_genres": "Todos os gêneros",
+      "loading_genres": "Carregando gêneros...",
+      "no_genres": "Nenhum gênero encontrado.",
       "year_from": "Publicado a partir de",
       "year_to": "Publicado até",
       "mine": "Somente cadastrados por mim",

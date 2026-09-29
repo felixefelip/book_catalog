@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   root "books#index"
 
   resources :books
+  resources :genres, only: :index
 
   namespace :open_library do
     resources :books, only: %i[index show]

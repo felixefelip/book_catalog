@@ -37,15 +37,19 @@ RSpec.describe Book, type: :model do
       expect(Book.filter_by(title: "%")).to be_empty
     end
 
-    it "filters by one of the genres" do
+    it "filters by a genre among the book genres" do
       realismo = create(:book, title: "Memórias Póstumas", genre_names: [ "Romance", "Realismo" ])
 
-      expect(Book.filter_by(genre: "Realismo")).to contain_exactly(realismo)
-      expect(Book.filter_by(genre: "Romance")).to contain_exactly(dom_casmurro, realismo)
+      expect(Book.filter_by(genres: [ "Realismo" ])).to contain_exactly(realismo)
+      expect(Book.filter_by(genres: [ "Romance" ])).to contain_exactly(dom_casmurro, realismo)
     end
 
     it "filters by the exact genre" do
-      expect(Book.filter_by(genre: "Ficção científica")).to contain_exactly(duna, fundacao)
+      expect(Book.filter_by(genres: [ "Ficção científica" ])).to contain_exactly(duna, fundacao)
+    end
+
+    it "returns books with any of the given genres" do
+      expect(Book.filter_by(genres: [ "Romance", "Ficção científica" ])).to contain_exactly(dom_casmurro, duna, fundacao)
     end
 
     it "filters by a published year range" do
@@ -61,7 +65,7 @@ RSpec.describe Book, type: :model do
     end
 
     it "combines filters" do
-      expect(Book.filter_by(genre: "Ficção científica", year_from: "1960")).to contain_exactly(duna)
+      expect(Book.filter_by(genres: [ "Ficção científica" ], year_from: "1960")).to contain_exactly(duna)
     end
   end
 end

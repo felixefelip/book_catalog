@@ -13,7 +13,7 @@ class Book < ApplicationRecord
   scope :filter_by, ->(filters) {
     title_contains(filters[:title])
       .author_contains(filters[:author_name])
-      .by_genre(filters[:genre])
+      .by_genres(filters[:genres])
       .published_from(filters[:year_from])
       .published_until(filters[:year_to])
       .created_by(filters[:creator])
