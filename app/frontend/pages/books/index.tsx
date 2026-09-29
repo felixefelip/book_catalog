@@ -1,5 +1,5 @@
 import { Head, Link } from "@inertiajs/react";
-import { BookOpen, SearchX } from "lucide-react";
+import { BookOpen, Pencil, SearchX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import Filters from "./filters";
@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/empty";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -120,7 +120,7 @@ export default function Index({
                           <BookOpen aria-hidden="true" />
                         </div>
                       )}
-                      <CardHeader className="min-w-0 flex-1 grid-cols-[minmax(0,1fr)]">
+                      <CardHeader className="min-w-0 flex-1 grid-cols-[minmax(0,1fr)] has-data-[slot=card-action]:grid-cols-[minmax(0,1fr)_auto]">
                         <CardTitle>
                           <h2>
                             <Link
@@ -136,6 +136,21 @@ export default function Index({
                             .filter(Boolean)
                             .join(" · ")}
                         </CardDescription>
+                        {book.can.update && (
+                          <CardAction>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              className="relative z-10"
+                              aria-label={t("books.index.edit")}
+                              title={t("books.index.edit")}
+                              nativeButton={false}
+                              render={<Link href={`/books/${book.id}/edit`} />}
+                            >
+                              <Pencil />
+                            </Button>
+                          </CardAction>
+                        )}
                       </CardHeader>
                     </div>
                     {(book.genres.length > 0 || book.description) && (
@@ -163,19 +178,6 @@ export default function Index({
                           <p className="line-clamp-3">{book.description}</p>
                         )}
                       </CardContent>
-                    )}
-                    {book.can.update && (
-                      <CardFooter className="mt-auto justify-end">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="relative z-10"
-                          nativeButton={false}
-                          render={<Link href={`/books/${book.id}/edit`} />}
-                        >
-                          {t("books.index.edit")}
-                        </Button>
-                      </CardFooter>
                     )}
                   </Card>
                 </li>
