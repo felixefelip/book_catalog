@@ -21,7 +21,7 @@ export default function Edit({ book }: EditProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="mx-auto max-w-sm">
+    <div className="mx-auto max-w-2xl">
       <Head title={t("books.edit.title")} />
 
       <Card>

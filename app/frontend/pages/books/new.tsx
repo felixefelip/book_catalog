@@ -20,7 +20,7 @@ export default function New({ book }: NewProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="mx-auto max-w-sm">
+    <div className="mx-auto max-w-2xl">
       <Head title={t("books.new.title")} />
 
       <Card>

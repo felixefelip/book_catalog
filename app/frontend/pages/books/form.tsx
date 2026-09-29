@@ -75,8 +75,8 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
       {...formProps}
     >
       {({ errors, processing }) => (
-        <FieldGroup>
-          <Field data-invalid={!!errors.title}>
+        <FieldGroup className="grid sm:grid-cols-2">
+          <Field data-invalid={!!errors.title} className="sm:col-span-2">
             <FieldLabel htmlFor="title">{t("books.form.title")}</FieldLabel>
             <TitleLookup
               id="title"
@@ -114,7 +114,7 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             />
           </Field>
 
-          <Field>
+          <Field className="sm:col-span-2">
             <FieldTitle>{t("books.form.genres")}</FieldTitle>
             <ul className="flex max-h-32 min-h-8 flex-wrap content-start gap-1 overflow-y-auto rounded-lg border border-input bg-muted px-2.5 py-1.5">
               {values.genres.map((genre) => (
@@ -130,7 +130,7 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             </ul>
           </Field>
 
-          <Field>
+          <Field className="sm:col-span-2">
             <FieldLabel htmlFor="description">
               {t("books.form.description")}
             </FieldLabel>
@@ -145,7 +145,7 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             />
           </Field>
 
-          <Field>
+          <Field className="sm:col-span-2">
             <FieldTitle>{t("books.form.cover")}</FieldTitle>
             {values.cover_url ? (
               <img
@@ -160,7 +160,7 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             )}
           </Field>
 
-          <div>
+          <div className="sm:col-span-2">
             <Button
               type="submit"
               disabled={!work || loadingDescription || processing}
