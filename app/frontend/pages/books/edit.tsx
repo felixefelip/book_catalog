@@ -15,10 +15,9 @@ import {
 
 interface EditProps {
   book: Book;
-  genres: string[];
 }
 
-export default function Edit({ book, genres }: EditProps) {
+export default function Edit({ book }: EditProps) {
   const { t } = useTranslation();
 
   return (
@@ -35,7 +34,6 @@ export default function Edit({ book, genres }: EditProps) {
         <CardContent>
           <Form
             book={book}
-            genres={genres}
             action={`/books/${book.id}`}
             method="patch"
             submitText={t("books.edit.submit")}

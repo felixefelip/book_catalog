@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/card";
 import type { Pagination } from "@/types";
 
+const CARD_GENRES_LIMIT = 3;
+
 interface IndexProps {
   books: Book[];
   pagination: Pagination;
@@ -123,15 +125,21 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
                             </h2>
                           </CardTitle>
                           <CardDescription>
-                            {book.author_name}
-                            {book.published_year && ` · ${book.published_year}`}
+                            {[book.author_name, book.published_year]
+                              .filter(Boolean)
+                              .join(" · ")}
                           </CardDescription>
                           <div className="mt-1 flex flex-wrap gap-1">
-                            {book.genres.map((genre) => (
+                            {book.genres.slice(0, CARD_GENRES_LIMIT).map((genre) => (
                               <Badge key={genre} variant="secondary">
                                 {genre}
                               </Badge>
                             ))}
+                            {book.genres.length > CARD_GENRES_LIMIT && (
+                              <Badge variant="outline">
+                                +{book.genres.length - CARD_GENRES_LIMIT}
+                              </Badge>
+                            )}
                           </div>
                         </CardHeader>
                         {book.description && (

@@ -3,8 +3,13 @@ require 'rails_helper'
 RSpec.describe Book, type: :model do
   describe "validations" do
     it { should validate_presence_of(:title) }
-    it { should validate_presence_of(:author_name) }
-    it { should validate_numericality_of(:published_year).only_integer }
+    it { should validate_numericality_of(:published_year).only_integer.allow_nil }
+  end
+
+  it "stores blank author and description as nil" do
+    book = create(:book, author_name: "  ", description: "")
+
+    expect(book).to have_attributes(author_name: nil, description: nil)
   end
 
   describe ".filter_by" do

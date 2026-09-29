@@ -27,11 +27,11 @@ class BooksController < InertiaController
   end
 
   def new
-    render inertia: { book: serialize_book(Book.new), genres: genre_names }
+    render inertia: { book: serialize_book(Book.new) }
   end
 
   def edit
-    render inertia: { book: serialize_book(@book), genres: genre_names }
+    render inertia: { book: serialize_book(@book) }
   end
 
   def create
@@ -63,7 +63,7 @@ class BooksController < InertiaController
     end
 
     def book_params
-      params.expect(book: [ :title, :author_name, :published_year, :description, :cover, :open_library_cover_id, genre_names: [] ])
+      params.expect(book: [ :title, :author_name, :published_year, :description, :open_library_cover_id, genre_names: [] ])
     end
 
     def genre_names

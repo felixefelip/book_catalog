@@ -6,8 +6,6 @@ module Book::Genreable
     has_many :genres, -> { order(:name) }, through: :book_genres
 
     scope :by_genre, ->(genre) { where(id: BookGenre.joins(:genre).where(genres: { name: genre }).select(:book_id)) if genre.present? }
-
-    validates :genres, presence: true
   end
 
   def genre_names

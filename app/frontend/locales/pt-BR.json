@@ -42,20 +42,15 @@
       "author_name": "Autor",
       "published_year": "Ano de publicação",
       "genres": "Gêneros",
-      "genre_placeholder": "Digite um gênero e pressione Enter",
-      "remove_genre": "Remover {{genre}}",
+      "no_genres": "Nenhum gênero informado.",
       "description": "Descrição",
       "cover": "Capa",
-      "current_cover": "Capa atual",
-      "open_library_cover": "Capa da Open Library",
-      "discard_open_library_cover": "Não usar esta capa",
-      "cover_hint": "JPEG, PNG ou WebP, com até 5 MB.",
+      "loading_description": "Carregando descrição...",
       "processing": "Salvando...",
       "lookup": {
         "loading": "Buscando na Open Library...",
         "error": "Não foi possível consultar a Open Library.",
-        "no_results": "Nenhum livro encontrado na Open Library.",
-        "genre_suggestions": "Sugestões:"
+        "no_results": "Nenhum livro encontrado na Open Library."
       }
     },
     "delete": {

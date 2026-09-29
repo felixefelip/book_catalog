@@ -4,7 +4,7 @@ class Genre < ApplicationRecord
 
   normalizes :name, with: ->(name) { name.squish }
 
-  validates :name, presence: true, uniqueness: { case_sensitive: false }, length: { maximum: 50 }
+  validates :name, presence: true, uniqueness: { case_sensitive: false }
 
   scope :in_use, -> { where(id: BookGenre.select(:genre_id)) }
 

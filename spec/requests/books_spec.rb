@@ -158,14 +158,6 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:book]).to include("id" => nil, "title" => nil, "genres" => [])
     end
 
-    it "lists the available genres" do
-      create(:book, genre_names: [ "Romance" ])
-
-      get new_book_path
-
-      expect(inertia.props[:genres]).to eq([ "Romance" ])
-    end
-
     it "shares the current locale" do
       get new_book_path
 
@@ -188,44 +180,29 @@ RSpec.describe "Books", type: :request do
       end
     end
 
-    context "with a cover" do
-      it "attaches the cover" do
-        post books_path, params: { book: valid_params[:book].merge(cover: fixture_file_upload("cover.png", "image/png")) }
-
-        expect(Book.last.cover).to be_attached
-      end
-    end
-
     context "with an Open Library cover" do
-      it "downloads and attaches the cover" do
-        client = instance_double(OpenLibrary::Client)
-        allow(OpenLibrary::Client).to receive(:new).and_return(client)
-        allow(client).to receive(:cover).with(647501)
-          .and_return(io: file_fixture("cover.png").open, filename: "open-library-647501.jpg", content_type: "image/png")
-
-        post books_path, params: { book: valid_params[:book].merge(open_library_cover_id: "647501") }
-
-        expect(Book.last.cover.filename.to_s).to eq("open-library-647501.jpg")
+      it "enqueues the cover download" do
+        expect {
+          post books_path, params: { book: valid_params[:book].merge(open_library_cover_id: "647501") }
+        }.to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(instance_of(Book), 647501)
       end
     end
 
-    context "with a cover that is not an image" do
-      it "does not create the book and redirects back with the error" do
-        expect {
-          post books_path, params: {
-            book: valid_params[:book].merge(cover: fixture_file_upload("not_an_image.txt", "text/plain"))
-          }
-        }.not_to change(Book, :count)
+    context "with a work without author, year, description or genres" do
+      it "creates the book with only the title" do
+        post books_path, params: {
+          book: { title: "Dom Casmurro", author_name: "", published_year: nil, description: nil, genre_names: [] }
+        }, as: :json
 
-        follow_redirect!
-        expect(inertia.props[:errors]).to include("cover" => [ "Capa deve ser uma imagem JPEG, PNG ou WebP" ])
+        expect(Book.last).to have_attributes(title: "Dom Casmurro", author_name: nil, published_year: nil, description: nil)
+        expect(Book.last.genres).to be_empty
       end
     end
 
     context "with invalid params" do
       it "does not create the book and redirects back with translated errors" do
         expect {
-          post books_path, params: { book: valid_params[:book].merge(title: "", published_year: "abc", genre_names: [ "" ]) }
+          post books_path, params: { book: valid_params[:book].merge(title: "", published_year: "abc") }
         }.not_to change(Book, :count)
 
         expect(response).to redirect_to(new_book_path)
@@ -234,8 +211,7 @@ RSpec.describe "Books", type: :request do
         expect_inertia.to render_component("books/new")
         expect(inertia.props[:errors]).to include(
           "title" => [ "Título não pode ficar em branco" ],
-          "published_year" => [ "Ano de publicação não é um número" ],
-          "genres" => [ "Gêneros não pode ficar em branco" ]
+          "published_year" => [ "Ano de publicação não é um número" ]
         )
       end
     end
@@ -258,18 +234,22 @@ RSpec.describe "Books", type: :request do
     context "when the book has a cover" do
       before { book.cover.attach(fixture_file_upload("cover.png", "image/png")) }
 
-      it "keeps the cover when no new file is sent" do
+      it "keeps the cover when no Open Library cover is sent" do
         patch book_path(book), params: { book: { title: "99 Bottles of OOP" } }
 
         expect(book.reload.cover).to be_attached
       end
 
-      it "replaces the cover when a new file is sent" do
-        old_blob = book.cover.blob
+      it "enqueues the new cover download when the work has a cover" do
+        expect {
+          patch book_path(book), params: { book: { open_library_cover_id: "647501" } }
+        }.to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(book, 647501)
+      end
 
-        patch book_path(book), params: { book: { cover: fixture_file_upload("cover.png", "image/png") } }
-
-        expect(book.reload.cover.blob).not_to eq(old_blob)
+      it "removes the cover when the new work has none" do
+        expect {
+          patch book_path(book), params: { book: { open_library_cover_id: nil } }, as: :json
+        }.to have_enqueued_job(ActiveStorage::PurgeJob)
       end
     end
 
@@ -297,22 +277,21 @@ RSpec.describe "Books", type: :request do
       expect(book.reload.genre_names).to eq([ "Programming" ])
     end
 
-    it "does not remove every genre" do
-      patch book_path(book), params: { book: { genre_names: [ "" ] } }
+    it "removes the genres when the new work has none" do
+      patch book_path(book), params: { book: { genre_names: [] } }, as: :json
 
-      expect(response).to redirect_to(edit_book_path(book))
-      expect(book.reload.genre_names).to eq([ "Programming" ])
+      expect(book.reload.genres).to be_empty
     end
 
     context "with invalid params" do
       it "does not update the book and redirects back with translated errors" do
-        patch book_path(book), params: { book: { author_name: "" } }
+        patch book_path(book), params: { book: { title: "" } }
 
         expect(response).to redirect_to(edit_book_path(book))
-        expect(book.reload.author_name).to eq("Sandi Metz")
+        expect(book.reload.title).to eq("Practical Object-Oriented Design: An Agile Primer Using Ruby")
 
         follow_redirect!
-        expect(inertia.props[:errors]).to include("author_name" => [ "Autor não pode ficar em branco" ])
+        expect(inertia.props[:errors]).to include("title" => [ "Título não pode ficar em branco" ])
       end
     end
   end

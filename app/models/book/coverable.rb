@@ -11,25 +11,32 @@ module Book::Coverable
 
     attr_reader :open_library_cover_id
 
-    before_validation :attach_open_library_cover, if: :open_library_cover_pending?
     validate :cover_must_be_a_valid_image
+    after_save_commit :replace_cover_later, if: :open_library_cover_assigned?
   end
 
   def open_library_cover_id=(id)
+    @open_library_cover_assigned = true
     @open_library_cover_id = Integer(id, exception: false)&.then { it if it.positive? }
   end
 
+  def attach_open_library_cover_now(cover_id)
+    cover.attach(OpenLibrary::Client.new.cover(cover_id))
+  end
+
   private
-    def open_library_cover_pending?
-      open_library_cover_id.present? && !attachment_changes.key?("cover")
+    def open_library_cover_assigned?
+      @open_library_cover_assigned
     end
 
-    def attach_open_library_cover
-      self.cover = OpenLibrary::Client.new.cover(open_library_cover_id)
-    rescue OpenLibrary::Client::Error => error
-      Rails.logger.warn("Open Library cover #{open_library_cover_id} not attached: #{error.message}")
-    ensure
-      @open_library_cover_id = nil
+    def replace_cover_later
+      @open_library_cover_assigned = false
+
+      if open_library_cover_id
+        Book::AttachOpenLibraryCoverJob.perform_later(self, open_library_cover_id)
+      else
+        cover.purge_later
+      end
     end
 
     def cover_must_be_a_valid_image

@@ -5,8 +5,7 @@ module OpenLibrary
     class Error < StandardError; end
 
     SEARCH_FIELDS = %w[key title author_name first_publish_year subject cover_i].freeze
-    SEARCH_LIMIT = 5
-    SUBJECTS_LIMIT = 5
+    SEARCH_LIMIT = 10
     COVERS_HOST = "https://covers.openlibrary.org".freeze
     WORK_ID_FORMAT = /\A[A-Za-z0-9]+\z/
     REQUEST_ERRORS = [ HTTParty::Error, Timeout::Error, SocketError, SystemCallError, OpenSSL::SSL::SSLError ].freeze
@@ -57,7 +56,7 @@ module OpenLibrary
           title: doc["title"],
           author_name: Array(doc["author_name"]).join(", "),
           published_year: doc["first_publish_year"],
-          subjects: Array(doc["subject"]).first(SUBJECTS_LIMIT),
+          subjects: Array(doc["subject"]),
           cover_id: doc["cover_i"],
           cover_url: ("#{COVERS_HOST}/b/id/#{doc["cover_i"]}-M.jpg" if doc["cover_i"])
         }

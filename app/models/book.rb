@@ -1,6 +1,8 @@
 class Book < ApplicationRecord
   include Coverable, Genreable
 
+  normalizes :author_name, :description, with: ->(value) { value.strip.presence }
+
   scope :title_contains, ->(title) { where("title ILIKE ?", "%#{sanitize_sql_like(title)}%") if title.present? }
   scope :author_contains, ->(author_name) { where("author_name ILIKE ?", "%#{sanitize_sql_like(author_name)}%") if author_name.present? }
   scope :published_from, ->(year) { where(published_year: year.to_i..) if year.to_s.match?(/\A\d+\z/) }
@@ -13,6 +15,6 @@ class Book < ApplicationRecord
       .published_until(filters[:year_to])
   }
 
-  validates :title, :author_name, presence: true
-  validates :published_year, numericality: { only_integer: true }
+  validates :title, presence: true
+  validates :published_year, numericality: { only_integer: true }, allow_nil: true
 end

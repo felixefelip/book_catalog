@@ -59,6 +59,14 @@ export default function TitleLookup({
   const suggestions = open && results ? results : [];
   const showList = suggestions.length > 0;
 
+  useEffect(() => {
+    if (!showList || activeIndex < 0) return;
+
+    document
+      .getElementById(`${listId}-${activeIndex}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [showList, activeIndex, listId]);
+
   function select(book: OpenLibraryBook) {
     onSelect(book);
     setQuery("");
@@ -111,7 +119,7 @@ export default function TitleLookup({
           <ul
             id={listId}
             role="listbox"
-            className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md"
+            className="absolute z-10 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border bg-popover text-popover-foreground shadow-md"
           >
             {suggestions.map((book, index) => (
               <li

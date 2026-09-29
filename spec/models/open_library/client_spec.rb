@@ -27,14 +27,14 @@ RSpec.describe OpenLibrary::Client do
       results = client.search("dom casmurro")
 
       expect(described_class).to have_received(:get)
-        .with("/search.json", query: hash_including(title: "dom casmurro", limit: 5))
+        .with("/search.json", query: hash_including(title: "dom casmurro", limit: 10))
       expect(results).to eq([
         {
           id: "OL1003040W",
           title: "Dom Casmurro",
           author_name: "Machado de Assis, Helen Caldwell",
           published_year: 1899,
-          subjects: %w[Fiction Adultery Jealousy Brazil Memory],
+          subjects: %w[Fiction Adultery Jealousy Brazil Memory Religion],
           cover_id: 647501,
           cover_url: "https://covers.openlibrary.org/b/id/647501-M.jpg"
         }

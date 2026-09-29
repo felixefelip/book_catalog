@@ -46,26 +46,38 @@ export default function Show({ book }: ShowProps) {
               <CardTitle>
                 <h1 className="text-xl">{book.title}</h1>
               </CardTitle>
-              <CardDescription>{book.author_name}</CardDescription>
+              {book.author_name && (
+                <CardDescription>{book.author_name}</CardDescription>
+              )}
             </CardHeader>
 
             <CardContent className="flex flex-col gap-4">
-              <dl className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2">
-                <dt className="text-muted-foreground">
-                  {t("books.form.published_year")}
-                </dt>
-                <dd>{book.published_year}</dd>
-                <dt className="text-muted-foreground">
-                  {t("books.form.genres")}
-                </dt>
-                <dd className="flex flex-wrap gap-1">
-                  {book.genres.map((genre) => (
-                    <Badge key={genre} variant="secondary">
-                      {genre}
-                    </Badge>
-                  ))}
-                </dd>
-              </dl>
+              {(book.published_year || book.genres.length > 0) && (
+                <dl className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2">
+                  {book.published_year && (
+                    <>
+                      <dt className="text-muted-foreground">
+                        {t("books.form.published_year")}
+                      </dt>
+                      <dd>{book.published_year}</dd>
+                    </>
+                  )}
+                  {book.genres.length > 0 && (
+                    <>
+                      <dt className="text-muted-foreground">
+                        {t("books.form.genres")}
+                      </dt>
+                      <dd className="flex flex-wrap gap-1">
+                        {book.genres.map((genre) => (
+                          <Badge key={genre} variant="secondary">
+                            {genre}
+                          </Badge>
+                        ))}
+                      </dd>
+                    </>
+                  )}
+                </dl>
+              )}
 
               <div className="flex flex-col gap-1">
                 <h2 className="text-muted-foreground">

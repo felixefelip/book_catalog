@@ -14,10 +14,9 @@ import {
 
 interface NewProps {
   book: Book;
-  genres: string[];
 }
 
-export default function New({ book, genres }: NewProps) {
+export default function New({ book }: NewProps) {
   const { t } = useTranslation();
 
   return (
@@ -34,7 +33,6 @@ export default function New({ book, genres }: NewProps) {
         <CardContent>
           <Form
             book={book}
-            genres={genres}
             action="/books"
             method="post"
             submitText={t("books.new.submit")}

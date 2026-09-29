@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe Book::Genreable, type: :model do
   subject { build(:book) }
 
-  describe "validations" do
-    it { should validate_presence_of(:genres) }
+  it "allows a book without genres" do
+    expect(build(:book, genre_names: [])).to be_valid
   end
 
   describe "associations" do

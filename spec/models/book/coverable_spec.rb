@@ -26,57 +26,48 @@ RSpec.describe Book::Coverable, type: :model do
   end
 
   describe "Open Library cover" do
-    let(:client) { instance_double(OpenLibrary::Client) }
-    let(:cover) { { io: file_fixture("cover.png").open, filename: "open-library-647501.jpg", content_type: "image/png" } }
-
-    before do
-      allow(OpenLibrary::Client).to receive(:new).and_return(client)
-      allow(client).to receive(:cover).with(647501).and_return(cover)
+    it "enqueues the cover download after saving" do
+      expect { create(:book, open_library_cover_id: "647501") }
+        .to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(instance_of(Book), 647501)
     end
 
-    it "attaches the Open Library cover when saving" do
-      book = create(:book, open_library_cover_id: "647501")
-
-      expect(book.cover).to be_attached
-      expect(book.cover.filename.to_s).to eq("open-library-647501.jpg")
-    end
-
-    it "replaces the cover of a persisted book" do
+    it "removes the current cover when the new work has none" do
       book = create(:book)
       book.cover.attach(io: file_fixture("cover.png").open, filename: "old.png", content_type: "image/png")
 
-      book.update!(open_library_cover_id: 647501)
-
-      expect(book.reload.cover.filename.to_s).to eq("open-library-647501.jpg")
+      expect { book.update!(open_library_cover_id: nil) }.to have_enqueued_job(ActiveStorage::PurgeJob)
     end
 
-    it "prefers an uploaded cover" do
-      book = build(:book, open_library_cover_id: 647501)
-      book.cover.attach(io: file_fixture("cover.png").open, filename: "upload.png", content_type: "image/png")
+    it "leaves the cover alone when no Open Library cover is assigned" do
+      book = create(:book)
 
-      book.save!
-
-      expect(book.cover.filename.to_s).to eq("upload.png")
-      expect(client).not_to have_received(:cover)
+      expect { book.update!(title: "99 Bottles of OOP") }
+        .not_to have_enqueued_job(Book::AttachOpenLibraryCoverJob)
     end
 
-    it "saves the book without a cover when the download fails" do
-      allow(client).to receive(:cover).and_raise(OpenLibrary::Client::Error)
-
+    it "enqueues the download only once per assignment" do
       book = create(:book, open_library_cover_id: 647501)
 
-      expect(book).to be_persisted
-      expect(book.cover).not_to be_attached
+      expect { book.update!(title: "99 Bottles of OOP") }
+        .not_to have_enqueued_job(Book::AttachOpenLibraryCoverJob)
     end
 
-    it "ignores ids that are not positive integers" do
+    it "treats ids that are not positive integers as no cover" do
       [ "", "abc", "12abc", "-1", "0", nil ].each do |id|
         expect(build(:book, open_library_cover_id: id).open_library_cover_id).to be_nil
       end
+    end
 
-      create(:book, open_library_cover_id: "abc")
+    it "downloads and attaches the cover" do
+      client = instance_double(OpenLibrary::Client)
+      allow(OpenLibrary::Client).to receive(:new).and_return(client)
+      allow(client).to receive(:cover).with(647501)
+        .and_return(io: file_fixture("cover.png").open, filename: "open-library-647501.jpg", content_type: "image/png")
+      book = create(:book)
 
-      expect(client).not_to have_received(:cover)
+      book.attach_open_library_cover_now(647501)
+
+      expect(book.reload.cover.filename.to_s).to eq("open-library-647501.jpg")
     end
   end
 end
