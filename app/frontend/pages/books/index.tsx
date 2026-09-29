@@ -100,7 +100,7 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
               {books.map((book) => (
                 <li key={book.id}>
                   <Card className="relative h-full transition-shadow hover:ring-foreground/30">
-                    <div className="flex flex-1 items-start gap-2">
+                    <div className="flex items-start gap-2">
                       {book.cover_url ? (
                         <img
                           src={book.cover_url}
@@ -112,24 +112,28 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
                           <BookOpen aria-hidden="true" />
                         </div>
                       )}
-                      <div className="flex min-w-0 flex-1 flex-col gap-(--card-spacing)">
-                        <CardHeader className="grid-cols-[minmax(0,1fr)]">
-                          <CardTitle>
-                            <h2>
-                              <Link
-                                href={`/books/${book.id}`}
-                                className="after:absolute after:inset-0"
-                              >
-                                {book.title}
-                              </Link>
-                            </h2>
-                          </CardTitle>
-                          <CardDescription>
-                            {[book.author_name, book.published_year]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </CardDescription>
-                          <div className="mt-1 flex flex-wrap gap-1">
+                      <CardHeader className="min-w-0 flex-1 grid-cols-[minmax(0,1fr)]">
+                        <CardTitle>
+                          <h2>
+                            <Link
+                              href={`/books/${book.id}`}
+                              className="after:absolute after:inset-0"
+                            >
+                              {book.title}
+                            </Link>
+                          </h2>
+                        </CardTitle>
+                        <CardDescription>
+                          {[book.author_name, book.published_year]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </CardDescription>
+                      </CardHeader>
+                    </div>
+                    {(book.genres.length > 0 || book.description) && (
+                      <CardContent className="flex flex-col gap-3">
+                        {book.genres.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
                             {book.genres.slice(0, CARD_GENRES_LIMIT).map((genre) => (
                               <Badge
                                 key={genre}
@@ -146,14 +150,12 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
                               </Badge>
                             )}
                           </div>
-                        </CardHeader>
-                        {book.description && (
-                          <CardContent>
-                            <p className="line-clamp-3">{book.description}</p>
-                          </CardContent>
                         )}
-                      </div>
-                    </div>
+                        {book.description && (
+                          <p className="line-clamp-3">{book.description}</p>
+                        )}
+                      </CardContent>
+                    )}
                     <CardFooter className="mt-auto justify-end">
                       <Button
                         variant="ghost"
