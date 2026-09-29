@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from "@inertiajs/react";
+import { Form, Head, Link } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,6 @@ type RegistrationFormType = {
 
 export default function New() {
   const { t } = useTranslation();
-  const { flash } = usePage();
 
   return (
     <div className="mx-auto max-w-sm">
@@ -45,8 +44,6 @@ export default function New() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {flash.alert && <p className="text-destructive">{flash.alert}</p>}
-
           <Form<RegistrationFormType>
             action="/registration"
             method="post"

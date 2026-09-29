@@ -1,9 +1,16 @@
-import { createInertiaApp } from "@inertiajs/react";
+import { createInertiaApp, router } from "@inertiajs/react";
+import { toast } from "sonner";
 
 import AppLayout from "@/layouts/app_layout";
 import { changeLocale } from "@/lib/i18n";
 
 import "./application.css";
+
+router.on("flash", (event) => {
+  const { notice, alert } = event.detail.flash;
+  if (notice) toast.success(notice);
+  if (alert) toast.error(alert);
+});
 
 void createInertiaApp({
   pages: "../pages",

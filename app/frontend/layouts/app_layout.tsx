@@ -20,6 +20,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
@@ -91,6 +92,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="mx-auto w-full max-w-4xl px-4 py-8">{children}</main>
+      <Toaster />
     </>
   );
 }

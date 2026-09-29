@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { BookOpen, SearchX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -43,16 +43,12 @@ export default function Index({
   books_count,
 }: IndexProps) {
   const { t } = useTranslation();
-  const { flash } = usePage();
   const hasBooks = books_count > 0;
   const hasFilters = Object.keys(filters).length > 0;
 
   return (
     <>
       <Head title={t("books.index.title")} />
-
-      {flash.notice && <p className="text-green-600 dark:text-green-400">{flash.notice}</p>}
-      {flash.alert && <p className="text-destructive">{flash.alert}</p>}
 
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">

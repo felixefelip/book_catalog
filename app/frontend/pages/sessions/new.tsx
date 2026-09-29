@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from "@inertiajs/react";
+import { Form, Head, Link } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 
 export default function New() {
   const { t } = useTranslation();
-  const { flash } = usePage();
 
   return (
     <div className="mx-auto max-w-sm">
@@ -29,9 +28,6 @@ export default function New() {
           <CardDescription>{t("sessions.new.description")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {flash.alert && <p className="text-destructive">{flash.alert}</p>}
-          {flash.notice && <p className="text-green-600 dark:text-green-400">{flash.notice}</p>}
-
           <Form action="/session" method="post" resetOnError={["password"]}>
             {({ processing }) => (
               <FieldGroup>
