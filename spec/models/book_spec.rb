@@ -56,6 +56,10 @@ RSpec.describe Book, type: :model do
       expect(Book.filter_by(year_from: "abc")).to contain_exactly(dom_casmurro, duna, fundacao)
     end
 
+    it "filters by the creator" do
+      expect(Book.filter_by(creator: duna.creator)).to contain_exactly(duna)
+    end
+
     it "combines filters" do
       expect(Book.filter_by(genre: "Ficção científica", year_from: "1960")).to contain_exactly(duna)
     end

@@ -67,6 +67,16 @@ RSpec.describe "Books", type: :request do
       expect(inertia.props[:filters]).to eq("title" => "dun", "genre" => "Ficção científica")
     end
 
+    it "filters the books created by the current user" do
+      create(:book, title: "Dom Casmurro", creator: user)
+      create(:book, title: "Duna")
+
+      get books_path, params: { mine: "1" }
+
+      expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
+      expect(inertia.props[:filters]).to eq("mine" => "1")
+    end
+
     it "includes the genres of each book" do
       create(:book, genre_names: [ "Romance", "Drama" ])
 
@@ -334,6 +344,15 @@ RSpec.describe "Books", type: :request do
 
   context "when not signed in" do
     before { delete session_path }
+
+    it "ignores the filter of books created by the current user" do
+      create(:book, title: "Dom Casmurro")
+
+      get books_path, params: { mine: "1" }
+
+      expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
+      expect(inertia.props[:filters]).to eq({})
+    end
 
     it "lists the books without a current user" do
       create(:book, title: "Dom Casmurro")

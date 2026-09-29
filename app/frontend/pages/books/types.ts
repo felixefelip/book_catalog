@@ -19,6 +19,7 @@ export type BookFilters = {
   genre?: string
   year_from?: string
   year_to?: string
+  mine?: string
 }
 
 export interface OpenLibraryBook {

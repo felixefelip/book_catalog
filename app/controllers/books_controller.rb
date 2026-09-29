@@ -5,8 +5,9 @@ class BooksController < InertiaController
   before_action :set_book, only: %i[show edit update destroy]
 
   def index
-    filters = params.permit(:title, :author_name, :genre, :year_from, :year_to).compact_blank.to_h
-    books = Book.with_attached_cover.includes(:genres).filter_by(filters).order(created_at: :desc, id: :desc).page(params[:page])
+    books = Book.with_attached_cover.includes(:genres)
+      .filter_by(filters.merge(creator: (Current.user if filters[:mine])))
+      .order(created_at: :desc, id: :desc).page(params[:page])
 
     return redirect_to books_path(filters.merge(page: books.total_pages)) if books.out_of_range? && books.total_pages.positive?
 
@@ -66,6 +67,12 @@ class BooksController < InertiaController
   private
     def set_book
       @book = Book.find(params[:id])
+    end
+
+    def filters
+      @filters ||= params.permit(:title, :author_name, :genre, :year_from, :year_to, :mine).compact_blank.to_h.tap do |filters|
+        filters.delete(:mine) unless authenticated?
+      end
     end
 
     def book_params

@@ -1,5 +1,6 @@
-import { Form, Link } from "@inertiajs/react";
+import { Form, Link, usePage } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
+import { cn } from "cn";
 
 import type { BookFilters } from "./types";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ interface FiltersProps {
 
 export default function Filters({ filters, genres }: FiltersProps) {
   const { t } = useTranslation();
+  const { current_user } = usePage().props;
   const hasFilters = Object.keys(filters).length > 0;
 
   return (
@@ -94,7 +96,25 @@ export default function Filters({ filters, genres }: FiltersProps) {
             />
           </Field>
 
-          <div className="flex gap-2 sm:col-span-2 lg:col-span-4 lg:justify-end">
+          {current_user && (
+            <label className="flex h-8 items-center gap-2 text-sm sm:col-span-2">
+              <input
+                type="checkbox"
+                name="mine"
+                value="1"
+                defaultChecked={filters.mine === "1"}
+                className="size-4 accent-primary"
+              />
+              {t("books.filters.mine")}
+            </label>
+          )}
+
+          <div
+            className={cn(
+              "flex gap-2 sm:col-span-2 lg:justify-end",
+              !current_user && "lg:col-span-4",
+            )}
+          >
             {hasFilters && (
               <Button
                 variant="ghost"
