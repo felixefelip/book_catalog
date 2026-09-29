@@ -113,7 +113,7 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
                         </div>
                       )}
                       <div className="flex min-w-0 flex-1 flex-col gap-(--card-spacing)">
-                        <CardHeader>
+                        <CardHeader className="grid-cols-[minmax(0,1fr)]">
                           <CardTitle>
                             <h2>
                               <Link
@@ -131,8 +131,13 @@ export default function Index({ books, pagination, filters, genres }: IndexProps
                           </CardDescription>
                           <div className="mt-1 flex flex-wrap gap-1">
                             {book.genres.slice(0, CARD_GENRES_LIMIT).map((genre) => (
-                              <Badge key={genre} variant="secondary">
-                                {genre}
+                              <Badge
+                                key={genre}
+                                variant="secondary"
+                                title={genre}
+                                className="max-w-full"
+                              >
+                                <span className="truncate">{genre}</span>
                               </Badge>
                             ))}
                             {book.genres.length > CARD_GENRES_LIMIT && (
