@@ -33,10 +33,10 @@ export default function Show({ book }: ShowProps) {
             <img
               src={book.cover_url}
               alt=""
-              className="mx-(--card-spacing) aspect-2/3 w-40 shrink-0 rounded-md object-cover sm:mr-0"
+              className="mx-(--card-spacing) aspect-2/3 w-40 shrink-0 self-start rounded-md object-cover sm:mr-0"
             />
           ) : (
-            <div className="mx-(--card-spacing) flex aspect-2/3 w-40 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground sm:mr-0">
+            <div className="mx-(--card-spacing) flex aspect-2/3 w-40 shrink-0 self-start items-center justify-center rounded-md bg-muted text-muted-foreground sm:mr-0">
               <BookOpen aria-hidden="true" className="size-8" />
             </div>
           )}
@@ -53,7 +53,7 @@ export default function Show({ book }: ShowProps) {
 
             <CardContent className="flex flex-col gap-4">
               {(book.published_year || book.genres.length > 0) && (
-                <dl className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2">
+                <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 gap-y-2">
                   {book.published_year && (
                     <>
                       <dt className="text-muted-foreground">
@@ -69,7 +69,11 @@ export default function Show({ book }: ShowProps) {
                       </dt>
                       <dd className="flex flex-wrap gap-1">
                         {book.genres.map((genre) => (
-                          <Badge key={genre} variant="secondary">
+                          <Badge
+                            key={genre}
+                            variant="secondary"
+                            className="h-auto max-w-full whitespace-normal"
+                          >
                             {genre}
                           </Badge>
                         ))}
