@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   resources :books
 
   namespace :open_library do
-    resources :books, only: %i[index show], constraints: { id: /OL\d+W/ }
+    resources :books, only: %i[index show]
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

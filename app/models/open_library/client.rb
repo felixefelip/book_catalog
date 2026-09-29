@@ -8,6 +8,7 @@ module OpenLibrary
     SEARCH_LIMIT = 5
     SUBJECTS_LIMIT = 5
     COVERS_HOST = "https://covers.openlibrary.org".freeze
+    WORK_ID_FORMAT = /\A[A-Za-z0-9]+\z/
     REQUEST_ERRORS = [ HTTParty::Error, Timeout::Error, SocketError, SystemCallError, OpenSSL::SSL::SSLError ].freeze
 
     base_uri "https://openlibrary.org"
@@ -21,6 +22,8 @@ module OpenLibrary
     end
 
     def description(work_id)
+      raise Error, "Invalid work id: #{work_id.inspect}" unless work_id.to_s.match?(WORK_ID_FORMAT)
+
       description = get_json("/works/#{work_id}.json")["description"]
 
       description.is_a?(Hash) ? description["value"] : description

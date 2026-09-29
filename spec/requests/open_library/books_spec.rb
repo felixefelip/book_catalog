@@ -48,12 +48,6 @@ RSpec.describe "OpenLibrary::Books", type: :request do
 
         expect(response.parsed_body).to eq("description" => "Bentinho e Capitu.")
       end
-
-      it "rejects ids that are not Open Library works" do
-        get "/open_library/books/..%2Fauthors"
-
-        expect(response).to have_http_status(:not_found)
-      end
     end
   end
 

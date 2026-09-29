@@ -75,6 +75,15 @@ RSpec.describe OpenLibrary::Client do
       expect(client.description("OL1003040W")).to eq("Bentinho e Capitu.")
     end
 
+    it "rejects work ids that could change the requested path" do
+      allow(described_class).to receive(:get)
+
+      [ "../authors/OL93286A", "..%2Fauthors", "OL1W?x=1", "", nil ].each do |work_id|
+        expect { client.description(work_id) }.to raise_error(OpenLibrary::Client::Error)
+      end
+      expect(described_class).not_to have_received(:get)
+    end
+
     it "returns nil when the work has no description" do
       stub_response({ title: "Dom Casmurro" })
 
