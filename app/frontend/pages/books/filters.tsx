@@ -21,9 +21,6 @@ export default function Filters({ filters }: FiltersProps) {
     <Form<BookFilters>
       method="get"
       action="/books"
-      transform={(data) =>
-        Object.fromEntries(Object.entries(data).filter(([, value]) => value))
-      }
       options={{ preserveScroll: true, preserveState: true, replace: true }}
       className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:items-end"
     >
