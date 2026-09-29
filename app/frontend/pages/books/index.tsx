@@ -52,6 +52,7 @@ export default function Index({
       <Head title={t("books.index.title")} />
 
       {flash.notice && <p className="text-green-600 dark:text-green-400">{flash.notice}</p>}
+      {flash.alert && <p className="text-destructive">{flash.alert}</p>}
 
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">
@@ -169,17 +170,19 @@ export default function Index({
                         )}
                       </CardContent>
                     )}
-                    <CardFooter className="mt-auto justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="relative z-10"
-                        nativeButton={false}
-                        render={<Link href={`/books/${book.id}/edit`} />}
-                      >
-                        {t("books.index.edit")}
-                      </Button>
-                    </CardFooter>
+                    {book.can.update && (
+                      <CardFooter className="mt-auto justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="relative z-10"
+                          nativeButton={false}
+                          render={<Link href={`/books/${book.id}/edit`} />}
+                        >
+                          {t("books.index.edit")}
+                        </Button>
+                      </CardFooter>
+                    )}
                   </Card>
                 </li>
               ))}

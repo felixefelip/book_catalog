@@ -156,6 +156,22 @@ RSpec.describe "Books", type: :request do
   end
 
   describe "GET /books/:id" do
+    it "allows the creator to update and destroy the book" do
+      book = create(:book, creator: user)
+
+      get book_path(book)
+
+      expect(inertia.props[:book]["can"]).to eq("update" => true, "destroy" => true)
+    end
+
+    it "does not allow other users to update or destroy the book" do
+      book = create(:book)
+
+      get book_path(book)
+
+      expect(inertia.props[:book]["can"]).to eq("update" => false, "destroy" => false)
+    end
+
     it "renders the book page" do
       book = create(:book, description: "Um guia sobre design orientado a objetos.")
 
@@ -245,17 +261,37 @@ RSpec.describe "Books", type: :request do
 
   describe "GET /books/:id/edit" do
     it "renders the edit page with the book" do
-      book = create(:book)
+      book = create(:book, creator: user)
 
       get edit_book_path(book)
 
       expect_inertia.to render_component("books/edit")
       expect(inertia.props[:book]).to include("id" => book.id, "title" => book.title)
     end
+
+    it "redirects to the list when the book was created by someone else" do
+      book = create(:book)
+
+      get edit_book_path(book)
+
+      expect(response).to redirect_to(books_path)
+
+      follow_redirect!
+      expect_inertia.to have_flash(alert: "Você só pode alterar livros cadastrados por você.")
+    end
   end
 
   describe "PATCH /books/:id" do
-    let(:book) { create(:book) }
+    let(:book) { create(:book, creator: user) }
+
+    it "does not update a book created by someone else" do
+      book = create(:book)
+
+      patch book_path(book), params: { book: { title: "99 Bottles of OOP" } }
+
+      expect(response).to redirect_to(books_path)
+      expect(book.reload.title).to eq("Practical Object-Oriented Design: An Agile Primer Using Ruby")
+    end
 
     context "when the book has a cover" do
       before { book.cover.attach(fixture_file_upload("cover.png", "image/png")) }
@@ -323,7 +359,14 @@ RSpec.describe "Books", type: :request do
   end
 
   describe "DELETE /books/:id" do
-    let!(:book) { create(:book) }
+    let!(:book) { create(:book, creator: user) }
+
+    it "does not delete a book created by someone else" do
+      other_book = create(:book)
+
+      expect { delete book_path(other_book) }.not_to change(Book, :count)
+      expect(response).to redirect_to(books_path)
+    end
 
     it "deletes the book and redirects to the list" do
       expect { delete book_path(book) }.to change(Book, :count).by(-1)

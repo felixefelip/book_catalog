@@ -41,7 +41,7 @@ export default function Edit({ book }: EditProps) {
         </CardContent>
         <CardFooter className="justify-between">
           <Link href="/books">{t("books.edit.back")}</Link>
-          <DeleteDialog book={book} />
+          {book.can.destroy && <DeleteDialog book={book} />}
         </CardFooter>
       </Card>
     </div>

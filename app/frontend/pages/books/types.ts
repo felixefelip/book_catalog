@@ -6,9 +6,10 @@ export interface Book {
   genres: string[]
   description: string | null
   cover_url: string | null
+  can: { update: boolean; destroy: boolean }
 }
 
-export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'genres'> & {
+export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'genres' | 'can'> & {
   genre_names: string[]
   open_library_cover_id: number | null
 }

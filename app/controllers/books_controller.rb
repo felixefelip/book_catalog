@@ -2,7 +2,10 @@
 
 class BooksController < InertiaController
   allow_unauthenticated_access only: %i[index show]
+  before_action :resume_session, only: %i[index show]
   before_action :set_book, only: %i[show edit update destroy]
+  before_action -> { authorize! :update, @book }, only: %i[edit update]
+  before_action -> { authorize! :destroy, @book }, only: :destroy
 
   def index
     books = Book.with_attached_cover.includes(:genres)
@@ -86,7 +89,8 @@ class BooksController < InertiaController
     def serialize_book(book)
       book.as_json(only: %i[id title author_name published_year description]).merge(
         "genres" => book.genre_names,
-        "cover_url" => (url_for(book.cover.variant(:thumb)) if book.cover.attached?)
+        "cover_url" => (url_for(book.cover.variant(:thumb)) if book.cover.attached?),
+        "can" => { "update" => can?(:update, book), "destroy" => can?(:destroy, book) }
       )
     end
 end

@@ -37,6 +37,9 @@ pt-BR:
     destroy:
       success: Livro excluído com sucesso.
 
+  authorization:
+    denied: Você só pode alterar livros cadastrados por você.
+
   open_library:
     unavailable: Não foi possível consultar a Open Library. Tente novamente mais tarde.
 

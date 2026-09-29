@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -21,7 +21,6 @@ interface ShowProps {
 
 export default function Show({ book }: ShowProps) {
   const { t } = useTranslation();
-  const { current_user } = usePage().props;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -107,8 +106,8 @@ export default function Show({ book }: ShowProps) {
 
         <CardFooter className="justify-between gap-2">
           <Link href="/books">{t("books.show.back")}</Link>
-          {current_user && (
-            <div className="flex gap-2">
+          <div className="flex gap-2">
+            {book.can.update && (
               <Button
                 variant="outline"
                 size="sm"
@@ -117,9 +116,9 @@ export default function Show({ book }: ShowProps) {
               >
                 {t("books.show.edit")}
               </Button>
-              <DeleteDialog book={book} />
-            </div>
-          )}
+            )}
+            {book.can.destroy && <DeleteDialog book={book} />}
+          </div>
         </CardFooter>
       </Card>
     </div>

@@ -73,3 +73,5 @@ gem "rails-i18n", "~> 8.1"
 gem "kaminari", "~> 1.2"
 
 gem "httparty", "~> 0.24"
+
+gem "cancancan", "~> 3.6"
