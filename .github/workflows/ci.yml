@@ -118,16 +118,6 @@ jobs:
           path: ${{ github.workspace }}/coverage
           if-no-files-found: ignore
 
-      - name: Coverage summary
-        if: always() && hashFiles('coverage/.last_run.json') != ''
-        run: |
-          {
-            echo "### Cobertura Ruby"
-            echo "| Linhas | Branches |"
-            echo "|---|---|"
-            jq -r '"| \(.result.line)% | \(.result.branch)% |"' coverage/.last_run.json
-          } >> "$GITHUB_STEP_SUMMARY"
-
       - name: Publish coverage status
         if: always() && hashFiles('coverage/.last_run.json') != ''
         env:
@@ -163,16 +153,6 @@ jobs:
       - name: Run frontend tests
         id: tests
         run: npm test -- --run --coverage
-
-      - name: Coverage summary
-        if: always() && hashFiles('coverage/frontend/coverage-summary.json') != ''
-        run: |
-          {
-            echo "### Cobertura Frontend"
-            echo "| Linhas | Branches | Statements | Funções |"
-            echo "|---|---|---|---|"
-            jq -r '.total | "| \(.lines.pct)% | \(.branches.pct)% | \(.statements.pct)% | \(.functions.pct)% |"' coverage/frontend/coverage-summary.json
-          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish coverage status
         if: always() && hashFiles('coverage/frontend/coverage-summary.json') != ''
