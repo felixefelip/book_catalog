@@ -41,8 +41,8 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 
 ### Diferenciais
 
-- [x] CI no GitHub Actions com RuboCop, Brakeman, bundler-audit, RSpec e Vitest
-- [x] Manifests de Deployment/Service do Kubernetes (`k8s/`)
+- [x] [CI](#ci) no GitHub Actions com RuboCop, Brakeman, bundler-audit, RSpec e Vitest
+- [x] Manifests de Deployment/Service do Kubernetes (`k8s/`), com instruções em [Kubernetes local](#kubernetes-local)
 - [x] Paginação com Kaminari
 - [ ] Cache básico
 - [ ] Logging estruturado
