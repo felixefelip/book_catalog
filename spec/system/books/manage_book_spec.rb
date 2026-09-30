@@ -8,23 +8,19 @@ RSpec.describe "Managing a book", type: :system do
   end
 
   describe "editing" do
-    let(:client) { instance_double(OpenLibrary::Client) }
     let(:memorias) do
       {
-        id: "OL1003041W",
+        key: "/works/OL1003041W",
         title: "Memórias Póstumas de Brás Cubas",
-        authors: [ "Machado de Assis" ],
-        published_year: 1881,
-        subjects: [ "Romance", "Realismo" ],
-        cover_id: nil,
-        cover_url: nil
+        author_name: [ "Machado de Assis" ],
+        first_publish_year: 1881,
+        subject: [ "Romance", "Realismo" ]
       }
     end
 
     before do
-      allow(OpenLibrary::Client).to receive(:new).and_return(client)
-      allow(client).to receive(:search).with("Memórias Póstumas").and_return([ memorias ])
-      allow(client).to receive(:description).with("OL1003041W").and_return("Ao verme que primeiro roeu.")
+      stub_open_library_search(docs: [ memorias ])
+      stub_open_library_work(work_id: "OL1003041W", body: { description: "Ao verme que primeiro roeu." })
     end
 
     it "replaces the book with another one chosen from Open Library" do

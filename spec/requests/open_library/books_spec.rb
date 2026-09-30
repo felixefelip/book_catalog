@@ -1,37 +1,40 @@
 require "rails_helper"
 
 RSpec.describe "OpenLibrary::Books", type: :request do
-  let(:client) { instance_double(OpenLibrary::Client) }
-
-  before do
-    allow(OpenLibrary::Client).to receive(:new).and_return(client)
-  end
-
   context "when signed in" do
     before { sign_in_as(create(:user)) }
 
     describe "GET /open_library/books" do
       it "returns the search results" do
-        allow(client).to receive(:search).with("dom casmurro")
-          .and_return([ { id: "OL1003040W", title: "Dom Casmurro" } ])
+        stub_open_library_search(docs: [ { key: "/works/OL1003040W", title: "Dom Casmurro" } ])
 
         get open_library_books_path, params: { q: " dom casmurro " }
 
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body).to eq([ { "id" => "OL1003040W", "title" => "Dom Casmurro" } ])
+        expect(WebMock).to have_requested(:get, OpenLibraryHelpers::OPEN_LIBRARY_SEARCH_URL)
+          .with(query: hash_including(title: "dom casmurro"))
+        expect(response.parsed_body).to eq([
+          {
+            "id" => "OL1003040W",
+            "title" => "Dom Casmurro",
+            "authors" => [],
+            "published_year" => nil,
+            "subjects" => [],
+            "cover_id" => nil,
+            "cover_url" => nil
+          }
+        ])
       end
 
       it "skips the search when the query is too short" do
-        allow(client).to receive(:search)
-
         get open_library_books_path, params: { q: "do" }
 
         expect(response.parsed_body).to eq([])
-        expect(client).not_to have_received(:search)
+        expect(WebMock).not_to have_requested(:any, /openlibrary\.org/)
       end
 
       it "returns bad gateway when Open Library is unavailable" do
-        allow(client).to receive(:search).and_raise(OpenLibrary::Client::Error)
+        stub_open_library_search_failure
 
         get open_library_books_path, params: { q: "dom casmurro" }
 
@@ -42,7 +45,7 @@ RSpec.describe "OpenLibrary::Books", type: :request do
 
     describe "GET /open_library/books/:id" do
       it "returns the work description" do
-        allow(client).to receive(:description).with("OL1003040W").and_return("Bentinho e Capitu.")
+        stub_open_library_work(work_id: "OL1003040W", body: { description: "Bentinho e Capitu." })
 
         get open_library_book_path("OL1003040W")
 

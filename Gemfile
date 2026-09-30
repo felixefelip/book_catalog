@@ -63,6 +63,7 @@ group :test do
   gem "selenium-webdriver"
   gem "shoulda-matchers", "~> 8.0"
   gem "simplecov", require: false
+  gem "webmock"
 end
 
 gem "inertia_rails", "~> 3.22"

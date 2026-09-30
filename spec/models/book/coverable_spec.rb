@@ -59,15 +59,13 @@ RSpec.describe Book::Coverable, type: :model do
     end
 
     it "downloads and attaches the cover" do
-      client = instance_double(OpenLibrary::Client)
-      allow(OpenLibrary::Client).to receive(:new).and_return(client)
-      allow(client).to receive(:cover).with(647501)
-        .and_return(io: file_fixture("cover.png").open, filename: "open-library-647501.jpg", content_type: "image/png")
+      stub_open_library_cover(cover_id: 647501)
       book = create(:book)
 
       book.attach_open_library_cover_now(647501)
 
       expect(book.reload.cover.filename.to_s).to eq("open-library-647501.jpg")
+      expect(book.cover.content_type).to eq("image/png")
     end
   end
 end

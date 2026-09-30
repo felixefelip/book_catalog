@@ -2,23 +2,19 @@ require "rails_helper"
 
 RSpec.describe "Creating a book", type: :system do
   let(:user) { create(:user) }
-  let(:client) { instance_double(OpenLibrary::Client) }
   let(:dom_casmurro) do
     {
-      id: "OL1003040W",
+      key: "/works/OL1003040W",
       title: "Dom Casmurro",
-      authors: [ "Machado de Assis" ],
-      published_year: 1899,
-      subjects: [ "Romance", "Literatura brasileira" ],
-      cover_id: nil,
-      cover_url: nil
+      author_name: [ "Machado de Assis" ],
+      first_publish_year: 1899,
+      subject: [ "Romance", "Literatura brasileira" ]
     }
   end
 
   before do
-    allow(OpenLibrary::Client).to receive(:new).and_return(client)
-    allow(client).to receive(:search).with("Dom Casmurro").and_return([ dom_casmurro ])
-    allow(client).to receive(:description).with("OL1003040W").and_return("Bentinho e Capitu.")
+    stub_open_library_search(docs: [ dom_casmurro ])
+    stub_open_library_work(work_id: "OL1003040W", body: { description: "Bentinho e Capitu." })
   end
 
   it "creates a book chosen from Open Library" do
@@ -46,7 +42,7 @@ RSpec.describe "Creating a book", type: :system do
   end
 
   it "tells the user when Open Library is unavailable" do
-    allow(client).to receive(:search).and_raise(OpenLibrary::Client::Error)
+    stub_open_library_search_failure
     sign_in_as(user)
 
     visit new_book_path
