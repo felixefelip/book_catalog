@@ -69,13 +69,6 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [ ] Cache básico
 - [ ] Logging estruturado
 
-### README
-
-- [x] Instruções de como rodar
-- [x] Seção de decisões técnicas (as três situações em aberto e as escolhas de arquitetura)
-- [x] Seção "[Com mais tempo](#com-mais-tempo)"
-- [x] Seção sobre o [uso de IA](#uso-de-ia), com pelo menos um exemplo de sugestão incorreta e a correção
-
 ## Decisões técnicas
 
 ### Convenções do Rails e da 37signals
