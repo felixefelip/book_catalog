@@ -12,6 +12,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
   - [Acesso ao `/books.json`](#acesso-ao-booksjson)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
 - [Com mais tempo](#com-mais-tempo)
+- [Uso de IA](#uso-de-ia)
 - [Dev Container](#dev-container)
 - [CI](#ci)
 - [Kubernetes local](#kubernetes-local)
@@ -72,7 +73,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [x] Instruções de como rodar
 - [x] Seção de decisões técnicas (as três situações em aberto e as escolhas de arquitetura)
 - [x] Seção "[Com mais tempo](#com-mais-tempo)"
-- [ ] Seção sobre o uso de IA, com pelo menos um exemplo de sugestão incorreta e a correção
+- [x] Seção sobre o [uso de IA](#uso-de-ia), com pelo menos um exemplo de sugestão incorreta e a correção
 
 ## Decisões técnicas
 
@@ -128,6 +129,12 @@ A Open Library serve para preencher o formulário, mas o cadastro não depende d
 - **Diferenciais que faltaram:** implementaria os dois diferenciais que não deu tempo de fazer: o cache básico, por exemplo das buscas na Open Library, e o logging estruturado.
 - **Gerenciar a conta:** hoje só é possível criar a conta, entrar e redefinir a senha. Faltam telas para editar os dados da conta (nome, e-mail, senha) e para excluir a conta.
 - **Infraestrutura do Kubernetes:** guardar as capas no S3 em vez do disco local, para poder rodar mais de uma réplica. Também rodaria o Solid Queue num Deployment próprio e as migrações num initContainer ou Job, em vez de dentro do Puma e na subida da aplicação.
+
+## Uso de IA
+
+No começo, escrevi a base do projeto manualmente, gerando os models, os controllers e as páginas do Inertia. Com a base pronta, passei a usar a IA para implementar funcionalidades e testes, sempre com instruções claras de como fazer, e revisando o código gerado linha a linha.
+
+**Exemplo de sugestão incorreta:** na lógica que baixa a capa do livro da Open Library, a IA deixou o código complexo demais, sobrescrevendo vários métodos, como setters, e adicionando tratamentos de erro complexos e desnecessários. Eu não estava entendendo bem o código, então escrevi boa parte do trecho manualmente para mostrar como queria que ficasse. O resultado é o concern `Book::Coverable`, que guarda o id da capa no livro e deixa o download para o `Book::AttachOpenLibraryCoverJob`.
 
 ## Dev Container
 
