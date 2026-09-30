@@ -18,6 +18,7 @@ export default defineConfig({
         "app/frontend/types/**",
       ],
       reportsDirectory: "coverage/frontend",
+      reporter: ["text", "html", "clover", "json", "json-summary"],
       thresholds: {
         statements: 80,
         branches: 86,

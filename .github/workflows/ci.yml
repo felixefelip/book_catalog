@@ -52,6 +52,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
 
     services:
       postgres:
@@ -91,6 +94,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
+        id: tests
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
@@ -114,8 +118,31 @@ jobs:
           path: ${{ github.workspace }}/coverage
           if-no-files-found: ignore
 
+      - name: Coverage summary
+        if: always() && hashFiles('coverage/.last_run.json') != ''
+        run: |
+          {
+            echo "### Cobertura Ruby"
+            echo "| Linhas | Branches |"
+            echo "|---|---|"
+            jq -r '"| \(.result.line)% | \(.result.branch)% |"' coverage/.last_run.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish coverage status
+        if: always() && hashFiles('coverage/.last_run.json') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }}" \
+            -f state=${{ steps.tests.outcome == 'success' && 'success' || 'failure' }} \
+            -f context="coverage/ruby" \
+            -f description="$(jq -r '"Linhas \(.result.line)% · Branches \(.result.branch)%"' coverage/.last_run.json)"
+
   frontend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
 
     steps:
       - name: Checkout code
@@ -134,4 +161,25 @@ jobs:
         run: npm run check
 
       - name: Run frontend tests
+        id: tests
         run: npm test -- --run --coverage
+
+      - name: Coverage summary
+        if: always() && hashFiles('coverage/frontend/coverage-summary.json') != ''
+        run: |
+          {
+            echo "### Cobertura Frontend"
+            echo "| Linhas | Branches | Statements | Funções |"
+            echo "|---|---|---|---|"
+            jq -r '.total | "| \(.lines.pct)% | \(.branches.pct)% | \(.statements.pct)% | \(.functions.pct)% |"' coverage/frontend/coverage-summary.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish coverage status
+        if: always() && hashFiles('coverage/frontend/coverage-summary.json') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }}" \
+            -f state=${{ steps.tests.outcome == 'success' && 'success' || 'failure' }} \
+            -f context="coverage/frontend" \
+            -f description="$(jq -r '.total | "Linhas \(.lines.pct)% · Branches \(.branches.pct)%"' coverage/frontend/coverage-summary.json)"
