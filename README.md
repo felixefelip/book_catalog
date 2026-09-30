@@ -2,20 +2,21 @@
 
 Catálogo de livros feito com Rails, Inertia e React, com importação de dados da Open Library.
 
-## Telas
-
-![Listagem de livros com filtros](docs/screenshots/books_index.png)
-
-![Edição de um livro](docs/screenshots/edit_book.png)
-
 ## Sumário
 
+- [Telas](#telas)
 - [Checklist do desafio](#checklist-do-desafio)
 - [Decisões técnicas](#decisões-técnicas)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
 - [Dev Container](#dev-container)
 - [CI](#ci)
 - [Kubernetes local](#kubernetes-local)
+
+## Telas
+
+![Listagem de livros com filtros](docs/screenshots/books_index.png)
+
+![Edição de um livro](docs/screenshots/edit_book.png)
 
 ## Checklist do desafio
 
