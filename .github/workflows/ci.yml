@@ -125,8 +125,8 @@ jobs:
         run: |
           gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }}" \
             -f state=${{ steps.tests.outcome == 'success' && 'success' || 'failure' }} \
-            -f context="coverage/ruby" \
-            -f description="$(jq -r '"Linhas \(.result.line)% · Branches \(.result.branch)%"' coverage/.last_run.json)"
+            -f context="${{ github.workflow }} / coverage-ruby (${{ github.event_name }})" \
+            -f description="$(jq -r '"Lines \(.result.line)% · Branches \(.result.branch)%"' coverage/.last_run.json)"
 
   frontend:
     runs-on: ubuntu-latest
@@ -161,5 +161,5 @@ jobs:
         run: |
           gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }}" \
             -f state=${{ steps.tests.outcome == 'success' && 'success' || 'failure' }} \
-            -f context="coverage/frontend" \
-            -f description="$(jq -r '.total | "Linhas \(.lines.pct)% · Branches \(.branches.pct)%"' coverage/frontend/coverage-summary.json)"
+            -f context="${{ github.workflow }} / coverage-frontend (${{ github.event_name }})" \
+            -f description="$(jq -r '.total | "Lines \(.lines.pct)% · Branches \(.branches.pct)%"' coverage/frontend/coverage-summary.json)"
