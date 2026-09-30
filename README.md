@@ -100,7 +100,7 @@ A aplicação permite cadastrar livros repetidos, tanto pela mesma pessoa quanto
 
 ### Acesso ao `/books.json`
 
-O endpoint é público, igual à listagem da home. Ele mostra os mesmos dados que qualquer pessoa já vê sem login, então exigir login não protegeria nada. Ele aceita os mesmos filtros e a mesma paginação da home.
+O endpoint é público, igual à listagem da home. Ele mostra os mesmos dados que qualquer pessoa já vê sem login e aceita os mesmos filtros e a mesma paginação da home.
 
 ### Indisponibilidade ou resposta vazia da Open Library
 
