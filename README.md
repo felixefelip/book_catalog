@@ -10,6 +10,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
   - [Convenções do Rails e da 37signals](#convenções-do-rails-e-da-37signals)
   - [Cadastro duplicado de livros](#cadastro-duplicado-de-livros)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
+- [Com mais tempo](#com-mais-tempo)
 - [Dev Container](#dev-container)
 - [CI](#ci)
 - [Kubernetes local](#kubernetes-local)
@@ -69,7 +70,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 
 - [x] Instruções de como rodar
 - [ ] Seção de decisões técnicas (as três situações em aberto e as escolhas de arquitetura)
-- [ ] Seção "Com mais tempo"
+- [x] Seção "[Com mais tempo](#com-mais-tempo)"
 - [ ] Seção sobre o uso de IA, com pelo menos um exemplo de sugestão incorreta e a correção
 
 ## Decisões técnicas
@@ -91,7 +92,7 @@ O projeto segue as convenções do Rails e o estilo da 37signals (Basecamp, HEY)
 
 ### Cadastro duplicado de livros
 
-A aplicação permite cadastrar livros repetidos, tanto pela mesma pessoa quanto por pessoas diferentes. Dois livros com o mesmo título podem ser edições diferentes, ou até obras diferentes, de outros autores. Não existe um dado que diga com segurança que dois cadastros são o mesmo livro, então bloquear pelo título impediria cadastros válidos.
+A aplicação permite cadastrar livros repetidos, tanto pela mesma pessoa quanto por pessoas diferentes. Dois livros com o mesmo título podem ser edições diferentes, ou até obras diferentes, de outros autores.
 
 ### Indisponibilidade ou resposta vazia da Open Library
 
@@ -114,6 +115,14 @@ A Open Library serve para preencher o formulário, mas o cadastro não depende d
 
 - A capa não é baixada durante o cadastro. O livro é salvo com o id da capa da Open Library, e o `Book::AttachOpenLibraryCoverJob` baixa a imagem em segundo plano. Assim, o cadastro não fica lento nem falha por causa da capa.
 - Se o download falhar, o job tenta de novo até 3 vezes, com intervalos cada vez maiores. Enquanto a capa não é baixada, a listagem mostra a imagem direto da Open Library.
+
+## Com mais tempo
+
+- **Manter os filtros ao navegar:** a paginação já mantém os filtros, mas eles se perdem ao abrir, cadastrar ou editar um livro e voltar para a listagem. Os links de "Voltar" e os redirects depois de salvar ou excluir levam sempre para `/books`, sem os filtros e sem a página em que a pessoa estava.
+- **Linter no frontend:** o CI roda o RuboCop no Ruby, mas no frontend só checa os tipos e roda os testes. Adicionaria um linter ao CI e ao `bin/ci`.
+- **Diferenciais que faltaram:** implementaria os dois diferenciais que não deu tempo de fazer: o cache básico, por exemplo das buscas na Open Library, e o logging estruturado.
+- **Gerenciar a conta:** hoje só é possível criar a conta, entrar e redefinir a senha. Faltam telas para editar os dados da conta (nome, e-mail, senha) e para excluir a conta.
+- **Infraestrutura do Kubernetes:** guardar as capas no S3 em vez do disco local, para poder rodar mais de uma réplica. Também rodaria o Solid Queue num Deployment próprio e as migrações num initContainer ou Job, em vez de dentro do Puma e na subida da aplicação.
 
 ## Dev Container
 
