@@ -8,6 +8,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [Checklist do desafio](#checklist-do-desafio)
 - [Decisões técnicas](#decisões-técnicas)
   - [Convenções do Rails e da 37signals](#convenções-do-rails-e-da-37signals)
+  - [I18n](#i18n)
   - [Cadastro duplicado de livros](#cadastro-duplicado-de-livros)
   - [Acesso ao `/books.json`](#acesso-ao-booksjson)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
@@ -91,6 +92,14 @@ O projeto segue as convenções do Rails e o estilo da 37signals (Basecamp, HEY)
 - **Filtros com scopes:** cada filtro da listagem é um scope do model, e o `Book.filter_by` junta todos. O controller só repassa os parâmetros.
 - **Ferramentas nativas do Rails:** a autenticação vem do gerador do Rails 8 (`Current`, `Session` e o concern `Authentication`), e os jobs usam o Solid Queue, sem Devise nem Redis.
 - **Estilo de código:** o RuboCop usa o `rubocop-rails-omakase`, que é o padrão do Rails.
+
+### I18n
+
+A aplicação está em português (`pt-BR`), mas nenhum texto fica fixo no código. Cada lado traduz os textos que produz.
+
+- **Backend:** as mensagens de flash, os erros de validação e a mensagem de falha da Open Library vêm do Rails, traduzidas pelo `config/locales/pt-BR.yml`. As mensagens padrão de validação em português vêm da gem `rails-i18n`. Os erros de validação chegam ao frontend já traduzidos.
+- **Frontend:** os textos da interface usam o `react-i18next`, com as traduções em `app/frontend/locales/pt-BR.json`. As chaves são tipadas, então usar uma chave que não existe dá erro na checagem de tipos.
+- **Idioma:** o Rails compartilha o idioma atual com o React pelo `inertia_share`, e o frontend troca o idioma a cada navegação. Para adicionar outro idioma, é preciso criar os arquivos de tradução nos dois lados, registrar o idioma no `config/application.rb` e no `app/frontend/lib/i18n.ts`, e definir como a pessoa escolhe o idioma.
 
 ### Cadastro duplicado de livros
 
