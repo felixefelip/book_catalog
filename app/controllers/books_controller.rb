@@ -80,7 +80,7 @@ class BooksController < InertiaController
     end
 
     def book_params
-      params.expect(book: [ :title, :published_year, :description, :open_library_cover_id, author_names: [], genre_names: [] ])
+      params.expect(book: [ :title, :published_year, :description, :open_library_cover_id, :cover, author_names: [], genre_names: [] ])
     end
 
     def serialize_book(book)

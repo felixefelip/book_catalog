@@ -239,6 +239,23 @@ RSpec.describe "Books", type: :request do
       end
     end
 
+    context "with an uploaded cover" do
+      it "attaches the image" do
+        post books_path, params: { book: valid_params[:book].merge(cover: fixture_file_upload("cover.png", "image/png")) }
+
+        expect(Book.last!.cover.filename.to_s).to eq("cover.png")
+      end
+
+      it "redirects back with the error when the file is not an image" do
+        expect {
+          post books_path, params: { book: valid_params[:book].merge(cover: fixture_file_upload("not_an_image.txt", "text/plain")) }
+        }.not_to change(Book, :count)
+
+        follow_redirect!
+        expect(inertia.props[:errors]).to include("cover" => [ "Capa deve ser uma imagem JPEG, PNG ou WebP" ])
+      end
+    end
+
     context "with a work without author, year, description or genres" do
       it "creates the book with only the title" do
         post books_path, params: {
@@ -319,11 +336,37 @@ RSpec.describe "Books", type: :request do
         }.to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(book, 647501)
       end
 
-      it "removes the cover when the new work has none" do
-        expect {
-          patch book_path(book), params: { book: { open_library_cover_id: nil } }, as: :json
-        }.to have_enqueued_job(ActiveStorage::PurgeJob)
+      it "keeps the cover when the Open Library cover id is null" do
+        patch book_path(book), params: { book: { open_library_cover_id: nil } }, as: :json
+
+        expect(book.reload.cover).to be_attached
       end
+
+      it "replaces the cover with an uploaded image" do
+        patch book_path(book), params: { book: { cover: fixture_file_upload("cover.png", "image/png") } }
+
+        expect(response).to redirect_to(books_path)
+        expect(book.reload.cover.blob.filename.to_s).to eq("cover.png")
+      end
+
+      it "removes the cover when it is sent blank" do
+        patch book_path(book), params: { book: { cover: "" } }
+
+        expect(book.reload.cover).not_to be_attached
+      end
+
+      it "removes the cover when it is sent as null" do
+        patch book_path(book), params: { book: { cover: nil } }, as: :json
+
+        expect(book.reload.cover).not_to be_attached
+      end
+    end
+
+    it "clears the authors and genres sent as blank inside a multipart form" do
+      patch book_path(book), params: { book: { author_names: [ "" ], genre_names: [ "" ], cover: fixture_file_upload("cover.png", "image/png") } }
+
+      expect(book.reload.authors).to be_empty
+      expect(book.genres).to be_empty
     end
 
     context "with valid params" do

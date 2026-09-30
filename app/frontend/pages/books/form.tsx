@@ -1,7 +1,7 @@
 import { type FormComponentProps } from "@inertiajs/core";
 import { Form as InertiaForm } from "@inertiajs/react";
 import { BookOpen } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { fetchOpenLibraryDescription } from "./open_library";
@@ -11,14 +11,18 @@ import RemoteMultiSelect from "@/components/remote_multi_select";
 import { Button } from "@/components/ui/button";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldTitle,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toFieldErrors } from "@/lib/field_errors";
+
+const COVER_TYPES = "image/jpeg,image/png,image/webp";
+
+const namesOrBlank = (names: string[]) => (names.length ? names : [""]);
 
 type FormProps = FormComponentProps<BookFormType> & {
   book: Book;
@@ -35,10 +39,52 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
   const [genres, setGenres] = useState(book.genres);
   const [description, setDescription] = useState(book.description ?? "");
   const [work, setWork] = useState<OpenLibraryBook | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverFileUrl, setCoverFileUrl] = useState<string | null>(null);
+  const [removeCover, setRemoveCover] = useState(false);
   const [loadingDescription, setLoadingDescription] = useState(false);
   const selectedWorkId = useRef<string | null>(null);
+  const coverInput = useRef<HTMLInputElement>(null);
 
-  const coverUrl = work ? work.cover_url : book.cover_url;
+  useEffect(() => {
+    if (!coverFile) {
+      setCoverFileUrl(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(coverFile);
+    setCoverFileUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [coverFile]);
+
+  const coverUrl =
+    coverFileUrl ??
+    (removeCover ? null : work ? work.cover_url : book.cover_url);
+
+  function chooseCoverFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setCoverFile(file);
+    setRemoveCover(false);
+  }
+
+  function clearCover() {
+    setCoverFile(null);
+    setRemoveCover(true);
+  }
+
+  function coverParams() {
+    if (coverFile) return { cover: coverFile };
+    if (removeCover) return { cover: null };
+    if (work) {
+      return work.cover_id
+        ? { open_library_cover_id: work.cover_id }
+        : { cover: null };
+    }
+    return {};
+  }
 
   async function selectWork(result: OpenLibraryBook) {
     selectedWorkId.current = result.id;
@@ -48,6 +94,8 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
     setPublishedYear(result.published_year?.toString() ?? "");
     setGenres(result.subjects);
     setDescription("");
+    setCoverFile(null);
+    setRemoveCover(false);
     setLoadingDescription(true);
 
     const fetchedDescription = await fetchOpenLibraryDescription(result.id).catch(
@@ -64,11 +112,11 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
       transform={() => ({
         book: {
           title: title.trim(),
-          author_names: authors,
+          author_names: namesOrBlank(authors),
           published_year: publishedYear.trim() || null,
           description: description.trim() || null,
-          genre_names: genres,
-          ...(work && { open_library_cover_id: work.cover_id }),
+          genre_names: namesOrBlank(genres),
+          ...coverParams(),
         },
       })}
       {...formProps}
@@ -147,19 +195,54 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             />
           </Field>
 
-          <Field className="sm:col-span-2">
-            <FieldTitle>{t("books.form.cover")}</FieldTitle>
-            {coverUrl ? (
-              <img
-                src={coverUrl}
-                alt=""
-                className="aspect-2/3 w-24 rounded-md object-cover"
-              />
-            ) : (
-              <div className="flex aspect-2/3 w-24 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                <BookOpen aria-hidden="true" />
+          <Field data-invalid={!!errors.cover} className="sm:col-span-2">
+            <FieldLabel htmlFor="cover">{t("books.form.cover")}</FieldLabel>
+            <div className="flex items-end gap-4">
+              {coverUrl ? (
+                <img
+                  src={coverUrl}
+                  alt=""
+                  className="aspect-2/3 w-24 rounded-md object-cover"
+                />
+              ) : (
+                <div className="flex aspect-2/3 w-24 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                  <BookOpen aria-hidden="true" />
+                </div>
+              )}
+              <div className="flex flex-col items-start gap-2">
+                <input
+                  ref={coverInput}
+                  type="file"
+                  id="cover"
+                  accept={COVER_TYPES}
+                  aria-invalid={!!errors.cover}
+                  className="sr-only"
+                  onChange={chooseCoverFile}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => coverInput.current?.click()}
+                >
+                  {coverUrl
+                    ? t("books.form.change_cover")
+                    : t("books.form.upload_cover")}
+                </Button>
+                {coverUrl && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearCover}
+                  >
+                    {t("books.form.remove_cover")}
+                  </Button>
+                )}
               </div>
-            )}
+            </div>
+            <FieldDescription>{t("books.form.cover_hint")}</FieldDescription>
+            <FieldError errors={toFieldErrors(errors.cover)} />
           </Field>
 
           <div className="sm:col-span-2">

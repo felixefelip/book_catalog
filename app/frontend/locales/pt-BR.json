@@ -60,6 +60,10 @@
       "add_option": "Adicionar \"{{name}}\"",
       "description": "Descrição",
       "cover": "Capa",
+      "upload_cover": "Enviar imagem",
+      "change_cover": "Trocar imagem",
+      "remove_cover": "Remover capa",
+      "cover_hint": "JPEG, PNG ou WebP de até 5 MB.",
       "loading_description": "Carregando descrição...",
       "processing": "Salvando...",
       "lookup": {

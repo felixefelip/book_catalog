@@ -337,6 +337,120 @@ describe("Books form", () => {
     expect(chips(container, "genres")).toEqual(["Deserto"]);
   });
 
+  it("submits blank names so the removed authors and genres are cleared", async () => {
+    const { user, container } = renderForm(
+      { ...emptyBook, id: 1, title: "Duna", authors: ["Frank Herbert"], genres: ["Deserto"] },
+      "patch",
+    );
+
+    for (const remove of container.querySelectorAll("[data-slot=combobox-chip-remove]")) {
+      await user.click(remove);
+    }
+    await user.click(submitButton());
+
+    expect(router.patch).toHaveBeenCalledWith(
+      "/books",
+      { book: expect.objectContaining({ author_names: [""], genre_names: [""] }) },
+      expect.any(Object),
+    );
+  });
+
+  describe("cover", () => {
+    const image = new File(["png"], "capa.png", { type: "image/png" });
+    const withCover = { ...emptyBook, id: 1, title: "Duna", cover_url: "/capa-atual.png" };
+
+    beforeEach(() => {
+      URL.createObjectURL = vi.fn(() => "blob:capa");
+      URL.revokeObjectURL = vi.fn();
+    });
+
+    const coverImage = (container: HTMLElement) => container.querySelector("img");
+
+    it("uploads the chosen image instead of the Open Library cover", async () => {
+      const { user, container } = renderForm();
+
+      await chooseBookAndWaitDescription(user, dune);
+      await user.upload(screen.getByLabelText("Capa"), image);
+
+      expect(coverImage(container)).toHaveAttribute("src", "blob:capa");
+
+      await user.click(submitButton());
+
+      const { book } = vi.mocked(router.post).mock.lastCall![1] as { book: Record<string, unknown> };
+      expect(book.cover).toBe(image);
+      expect(book).not.toHaveProperty("open_library_cover_id");
+    });
+
+    it("replaces the uploaded image when another book is chosen", async () => {
+      const { user, container } = renderForm();
+
+      await user.upload(screen.getByLabelText("Capa"), image);
+      await chooseBookAndWaitDescription(user, dune);
+
+      expect(coverImage(container)).toHaveAttribute("src", dune.cover_url);
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:capa");
+
+      await user.click(submitButton());
+
+      expect(router.post).toHaveBeenCalledWith(
+        "/books",
+        { book: expect.objectContaining({ open_library_cover_id: 123 }) },
+        expect.any(Object),
+      );
+    });
+
+    it("removes the current cover when the chosen book has none", async () => {
+      vi.mocked(searchOpenLibrary).mockResolvedValue([{ ...dune, cover_id: null, cover_url: null }]);
+      const { user, container } = renderForm(withCover, "patch");
+
+      await chooseBookAndWaitDescription(user, dune);
+
+      expect(coverImage(container)).toBeNull();
+
+      await user.click(submitButton());
+
+      const { book } = vi.mocked(router.patch).mock.lastCall![1] as { book: Record<string, unknown> };
+      expect(book.cover).toBeNull();
+      expect(book).not.toHaveProperty("open_library_cover_id");
+    });
+
+    it("removes the current cover", async () => {
+      const { user, container } = renderForm(withCover, "patch");
+
+      expect(coverImage(container)).toHaveAttribute("src", "/capa-atual.png");
+
+      await user.click(screen.getByRole("button", { name: "Remover capa" }));
+
+      expect(coverImage(container)).toBeNull();
+      expect(screen.queryByRole("button", { name: "Remover capa" })).not.toBeInTheDocument();
+
+      await user.click(submitButton());
+
+      expect(router.patch).toHaveBeenCalledWith(
+        "/books",
+        { book: expect.objectContaining({ cover: null }) },
+        expect.any(Object),
+      );
+    });
+
+    it("offers to upload an image when there is no cover", () => {
+      renderForm();
+
+      expect(screen.getByRole("button", { name: "Enviar imagem" })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Remover capa" })).not.toBeInTheDocument();
+    });
+
+    it("shows the cover errors returned by the server", async () => {
+      const { user } = renderForm(withCover, "patch");
+
+      await user.click(submitButton());
+      act(() => lastVisitOptions("patch").onError!({ cover: ["deve ser uma imagem"] } as never));
+
+      expect(screen.getByText("deve ser uma imagem")).toBeInTheDocument();
+      expect(screen.getByLabelText("Capa")).toHaveAttribute("aria-invalid", "true");
+    });
+  });
+
   it("uses the given method", async () => {
     const { user } = renderForm({ ...emptyBook, id: 1, title: "Dom Casmurro" }, "patch");
 

@@ -14,6 +14,7 @@ export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'authors' | 'genres' 
   published_year: string | null
   genre_names: string[]
   open_library_cover_id?: number | null
+  cover?: File | null
 }
 
 export type BookFilters = {

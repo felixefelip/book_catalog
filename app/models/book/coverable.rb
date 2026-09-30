@@ -12,11 +12,10 @@ module Book::Coverable
     attr_reader :open_library_cover_id
 
     validate :cover_must_be_a_valid_image
-    after_save_commit :replace_cover_later, if: :open_library_cover_assigned?
+    after_save_commit :attach_open_library_cover_later, if: :open_library_cover_id
   end
 
   def open_library_cover_id=(id)
-    @open_library_cover_assigned = true
     @open_library_cover_id = Integer(id, exception: false)&.then { it if it.positive? }
   end
 
@@ -25,18 +24,9 @@ module Book::Coverable
   end
 
   private
-    def open_library_cover_assigned?
-      @open_library_cover_assigned
-    end
-
-    def replace_cover_later
-      @open_library_cover_assigned = false
-
-      if open_library_cover_id
-        Book::AttachOpenLibraryCoverJob.perform_later(self, open_library_cover_id)
-      else
-        cover.purge_later
-      end
+    def attach_open_library_cover_later
+      Book::AttachOpenLibraryCoverJob.perform_later(self, open_library_cover_id)
+      @open_library_cover_id = nil
     end
 
     def cover_must_be_a_valid_image

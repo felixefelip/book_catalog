@@ -31,11 +31,14 @@ RSpec.describe Book::Coverable, type: :model do
         .to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(instance_of(Book), 647501)
     end
 
-    it "removes the current cover when the new work has none" do
+    it "leaves the current cover alone when no valid cover id is assigned" do
       book = create(:book)
       book.cover.attach(io: file_fixture("cover.png").open, filename: "old.png", content_type: "image/png")
 
-      expect { book.update!(open_library_cover_id: nil) }.to have_enqueued_job(ActiveStorage::PurgeJob)
+      expect { book.update!(open_library_cover_id: nil) }
+        .not_to have_enqueued_job(Book::AttachOpenLibraryCoverJob)
+
+      expect(book.reload.cover).to be_attached
     end
 
     it "leaves the cover alone when no Open Library cover is assigned" do
@@ -66,6 +69,18 @@ RSpec.describe Book::Coverable, type: :model do
 
       expect(book.reload.cover.filename.to_s).to eq("open-library-647501.jpg")
       expect(book.cover.content_type).to eq("image/png")
+    end
+  end
+
+  describe "removing the cover" do
+    let(:book) { create(:book) }
+
+    before { book.cover.attach(io: file_fixture("cover.png").open, filename: "cover.png", content_type: "image/png") }
+
+    it "purges the cover when it is set to blank" do
+      expect { book.update!(cover: "") }.to have_enqueued_job(ActiveStorage::PurgeJob)
+
+      expect(book.reload.cover).not_to be_attached
     end
   end
 end

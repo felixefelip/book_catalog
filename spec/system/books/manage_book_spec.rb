@@ -70,6 +70,32 @@ RSpec.describe "Managing a book", type: :system do
       expect(book.author_names).to eq([ "Machado de Assis" ])
       expect(book.cover).to be_attached
     end
+
+    it "uploads a new cover" do
+      sign_in_as(owner)
+
+      visit edit_book_path(book)
+      attach_file "Capa", file_fixture("cover.png"), make_visible: true
+
+      expect(page).to have_css("img[src^='blob:']")
+
+      click_button "Salvar alterações"
+
+      expect(page).to have_text("Livro atualizado com sucesso.")
+      expect(book.reload.cover.filename.to_s).to eq("cover.png")
+    end
+
+    it "removes the cover" do
+      book.cover.attach(io: file_fixture("cover.png").open, filename: "cover.png")
+      sign_in_as(owner)
+
+      visit edit_book_path(book)
+      click_button "Remover capa"
+      click_button "Salvar alterações"
+
+      expect(page).to have_text("Livro atualizado com sucesso.")
+      expect(book.reload.cover).not_to be_attached
+    end
   end
 
   describe "deleting" do
