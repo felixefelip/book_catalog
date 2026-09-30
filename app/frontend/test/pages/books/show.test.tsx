@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import Show from "@/pages/books/show";
 import type { Book } from "@/pages/books/types";
 
+
 type ShowBook = Book & { creator_name: string; created_on: string };
 
 const buildBook = (attributes: Partial<ShowBook> = {}): ShowBook => ({
@@ -31,6 +32,12 @@ describe("Books show", () => {
     expect(screen.getByText("Romance")).toBeInTheDocument();
     expect(screen.getByText("Realismo")).toBeInTheDocument();
     expect(screen.getByText("Bentinho e Capitu.")).toBeInTheDocument();
+  });
+
+  it("shows the cover", () => {
+    const { container } = render(<Show book={buildBook({ cover_url: "/capa.png" })} />);
+
+    expect(container.querySelector("img")).toHaveAttribute("src", "/capa.png");
   });
 
   it("hides the optional details when they are missing", () => {

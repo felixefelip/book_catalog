@@ -61,6 +61,13 @@ describe("Books index", () => {
     expect(editLinks[0]).toHaveAttribute("href", "/books/1/edit");
   });
 
+  it("shows the covers of the books that have one", () => {
+    const { container } = renderIndex([buildBook({ id: 1, cover_url: "/capa.png" }), buildBook({ id: 2 })]);
+
+    expect(container.querySelectorAll("img")).toHaveLength(1);
+    expect(container.querySelector("img")).toHaveAttribute("src", "/capa.png");
+  });
+
   it("limits the genres shown on the card", () => {
     renderIndex([buildBook({ genres: ["Romance", "Drama", "Clássico", "Realismo", "Brasil"] })]);
 

@@ -26,19 +26,20 @@ RSpec.describe Book::Coverable, type: :model do
   end
 
   describe "Open Library cover" do
-    it "enqueues the cover download after saving" do
-      expect { create(:book, open_library_cover_id: "647501") }
-        .to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(instance_of(Book), 647501)
+    it "enqueues the download after saving a pending cover" do
+      expect { create(:book, pending_open_library_cover_id: 647501) }
+        .to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(instance_of(Book))
     end
 
-    it "leaves the current cover alone when no valid cover id is assigned" do
-      book = create(:book)
+    it "clears the pending cover and leaves the current cover alone when it is set to nil" do
+      book = create(:book, pending_open_library_cover_id: 647501)
       book.cover.attach(io: file_fixture("cover.png").open, filename: "old.png", content_type: "image/png")
 
-      expect { book.update!(open_library_cover_id: nil) }
+      expect { book.update!(pending_open_library_cover_id: nil) }
         .not_to have_enqueued_job(Book::AttachOpenLibraryCoverJob)
 
-      expect(book.reload.cover).to be_attached
+      expect(book.reload).not_to be_cover_pending
+      expect(book.cover).to be_attached
     end
 
     it "leaves the cover alone when no Open Library cover is assigned" do
@@ -48,27 +49,70 @@ RSpec.describe Book::Coverable, type: :model do
         .not_to have_enqueued_job(Book::AttachOpenLibraryCoverJob)
     end
 
-    it "enqueues the download only once per assignment" do
-      book = create(:book, open_library_cover_id: 647501)
+    it "enqueues the download only when the pending cover changes" do
+      book = create(:book, pending_open_library_cover_id: 647501)
 
       expect { book.update!(title: "99 Bottles of OOP") }
         .not_to have_enqueued_job(Book::AttachOpenLibraryCoverJob)
+      expect { book.update!(pending_open_library_cover_id: 647502) }
+        .to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(book)
     end
 
-    it "treats ids that are not positive integers as no cover" do
-      [ "", "abc", "12abc", "-1", "0", nil ].each do |id|
-        expect(build(:book, open_library_cover_id: id).open_library_cover_id).to be_nil
+    it "accepts only positive integers as the pending cover" do
+      [ "abc", "12abc", "1.5", "-1", "0" ].each do |id|
+        book = build(:book, pending_open_library_cover_id: id)
+
+        expect(book).not_to be_valid
+        expect(book.errors[:pending_open_library_cover_id]).to be_present
+      end
+
+      [ "647501", 647501, "", nil ].each do |id|
+        expect(build(:book, pending_open_library_cover_id: id)).to be_valid
       end
     end
 
-    it "downloads and attaches the cover" do
-      stub_open_library_cover(cover_id: 647501)
-      book = create(:book)
+    describe "#attach_open_library_cover_now" do
+      let(:book) { create(:book, pending_open_library_cover_id: 647501) }
 
-      book.attach_open_library_cover_now(647501)
+      it "attaches the pending cover and clears it" do
+        stub_open_library_cover(cover_id: 647501)
 
-      expect(book.reload.cover.filename.to_s).to eq("open-library-647501.jpg")
-      expect(book.cover.content_type).to eq("image/png")
+        book.attach_open_library_cover_now
+
+        expect(book.reload.cover.filename.to_s).to eq("open-library-647501.jpg")
+        expect(book.cover.content_type).to eq("image/png")
+        expect(book).not_to be_cover_pending
+      end
+
+      it "does nothing when the cover is no longer pending" do
+        book.update!(pending_open_library_cover_id: nil)
+
+        book.attach_open_library_cover_now
+
+        expect(WebMock).not_to have_requested(:get, /covers\.openlibrary\.org/)
+        expect(book.reload.cover).not_to be_attached
+      end
+    end
+  end
+
+  describe "#cover_url" do
+    let(:book) { create(:book) }
+
+    it "is nil when there is no cover" do
+      expect(book.cover_url).to be_nil
+    end
+
+    it "is the path of the thumbnail when the cover is attached" do
+      book.cover.attach(io: file_fixture("cover.png").open, filename: "cover.png", content_type: "image/png")
+
+      expect(book.cover_url).to start_with("/rails/active_storage/representations/").and end_with("/cover.png")
+    end
+
+    it "is the Open Library cover while it is being downloaded, even over the attached one" do
+      book.cover.attach(io: file_fixture("cover.png").open, filename: "cover.png", content_type: "image/png")
+      book.update!(pending_open_library_cover_id: 647501)
+
+      expect(book.cover_url).to eq("https://covers.openlibrary.org/b/id/647501-M.jpg?default=false")
     end
   end
 

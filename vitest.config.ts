@@ -21,8 +21,8 @@ export default defineConfig({
       reporter: ["text", "html", "clover", "json", "json-summary"],
       thresholds: {
         statements: 98,
-        branches: 94,
-        functions: 96,
+        branches: 95,
+        functions: 97,
         lines: 99,
         autoUpdate: (newThreshold) => Math.floor(newThreshold),
       },

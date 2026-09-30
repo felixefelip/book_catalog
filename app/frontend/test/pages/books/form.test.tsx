@@ -225,7 +225,7 @@ describe("Books form", () => {
           published_year: "1965",
           description: "Um clássico da ficção científica.",
           genre_names: ["Ficção científica", "Deserto"],
-          open_library_cover_id: 123,
+          pending_open_library_cover_id: 123,
         },
       },
       expect.any(Object),
@@ -244,7 +244,7 @@ describe("Books form", () => {
 
     expect(router.post).toHaveBeenCalledWith(
       "/books",
-      { book: expect.objectContaining({ published_year: "1966", description: "Arrakis.", open_library_cover_id: 123 }) },
+      { book: expect.objectContaining({ published_year: "1966", description: "Arrakis.", pending_open_library_cover_id: 123 }) },
       expect.any(Object),
     );
   });
@@ -378,7 +378,7 @@ describe("Books form", () => {
 
       const { book } = vi.mocked(router.post).mock.lastCall![1] as { book: Record<string, unknown> };
       expect(book.cover).toBe(image);
-      expect(book).not.toHaveProperty("open_library_cover_id");
+      expect(book.pending_open_library_cover_id).toBeNull();
     });
 
     it("replaces the uploaded image when another book is chosen", async () => {
@@ -394,7 +394,7 @@ describe("Books form", () => {
 
       expect(router.post).toHaveBeenCalledWith(
         "/books",
-        { book: expect.objectContaining({ open_library_cover_id: 123 }) },
+        { book: expect.objectContaining({ pending_open_library_cover_id: 123 }) },
         expect.any(Object),
       );
     });
@@ -411,7 +411,7 @@ describe("Books form", () => {
 
       const { book } = vi.mocked(router.patch).mock.lastCall![1] as { book: Record<string, unknown> };
       expect(book.cover).toBeNull();
-      expect(book).not.toHaveProperty("open_library_cover_id");
+      expect(book.pending_open_library_cover_id).toBeNull();
     });
 
     it("removes the current cover", async () => {
@@ -428,7 +428,7 @@ describe("Books form", () => {
 
       expect(router.patch).toHaveBeenCalledWith(
         "/books",
-        { book: expect.objectContaining({ cover: null }) },
+        { book: expect.objectContaining({ cover: null, pending_open_library_cover_id: null }) },
         expect.any(Object),
       );
     });

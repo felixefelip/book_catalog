@@ -13,7 +13,7 @@ export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'authors' | 'genres' 
   author_names: string[]
   published_year: string | null
   genre_names: string[]
-  open_library_cover_id?: number | null
+  pending_open_library_cover_id?: number | null
   cover?: File | null
 }
 

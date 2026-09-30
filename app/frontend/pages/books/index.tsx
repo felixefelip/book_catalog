@@ -2,6 +2,7 @@ import { Head, Link } from "@inertiajs/react";
 import { BookOpen, Pencil, SearchX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import BookCover from "./book_cover";
 import Filters from "./filters";
 import type { Book, BookFilters } from "./types";
 import PaginationNav from "@/components/pagination_nav";
@@ -109,17 +110,10 @@ export default function Index({
                 <li key={book.id}>
                   <Card className="relative h-full transition-shadow hover:ring-foreground/30">
                     <div className="flex items-start gap-2">
-                      {book.cover_url ? (
-                        <img
-                          src={book.cover_url}
-                          alt=""
-                          className="ml-(--card-spacing) aspect-2/3 w-20 shrink-0 rounded-md object-cover"
-                        />
-                      ) : (
-                        <div className="ml-(--card-spacing) flex aspect-2/3 w-20 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                          <BookOpen aria-hidden="true" />
-                        </div>
-                      )}
+                      <BookCover
+                        url={book.cover_url}
+                        className="ml-(--card-spacing) w-20 shrink-0"
+                      />
                       <CardHeader className="min-w-0 flex-1 grid-cols-[minmax(0,1fr)] has-data-[slot=card-action]:grid-cols-[minmax(0,1fr)_auto]">
                         <CardTitle>
                           <h2>

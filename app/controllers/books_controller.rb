@@ -80,14 +80,14 @@ class BooksController < InertiaController
     end
 
     def book_params
-      params.expect(book: [ :title, :published_year, :description, :open_library_cover_id, :cover, author_names: [], genre_names: [] ])
+      params.expect(book: [ :title, :published_year, :description, :pending_open_library_cover_id, :cover, author_names: [], genre_names: [] ])
     end
 
     def serialize_book(book)
       book.as_json(only: %i[id title published_year description]).merge(
         "authors" => book.author_names,
         "genres" => book.genre_names,
-        "cover_url" => (url_for(book.cover.variant(:thumb)) if book.cover.attached?),
+        "cover_url" => book.cover_url,
         "can" => { "update" => can?(:update, book), "destroy" => can?(:destroy, book) }
       )
     end

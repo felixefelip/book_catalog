@@ -1,7 +1,7 @@
-import { BookOpen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import BookCover from "./book_cover";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -55,17 +55,7 @@ export default function CoverField({
     <Field data-invalid={!!errors} className="sm:col-span-2">
       <FieldLabel htmlFor="cover">{t("books.form.cover")}</FieldLabel>
       <div className="flex items-end gap-4">
-        {previewUrl ? (
-          <img
-            src={previewUrl}
-            alt=""
-            className="aspect-2/3 w-24 rounded-md object-cover"
-          />
-        ) : (
-          <div className="flex aspect-2/3 w-24 items-center justify-center rounded-md bg-muted text-muted-foreground">
-            <BookOpen aria-hidden="true" />
-          </div>
-        )}
+        <BookCover url={previewUrl} className="w-24" />
         <div className="flex flex-col items-start gap-2">
           <input
             ref={input}

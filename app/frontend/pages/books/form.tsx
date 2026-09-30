@@ -54,12 +54,12 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
   }
 
   function coverParams() {
-    if (coverFile) return { cover: coverFile };
-    if (removeCover) return { cover: null };
+    if (coverFile) return { cover: coverFile, pending_open_library_cover_id: null };
+    if (removeCover) return { cover: null, pending_open_library_cover_id: null };
     if (work) {
       return work.cover_id
-        ? { open_library_cover_id: work.cover_id }
-        : { cover: null };
+        ? { pending_open_library_cover_id: work.cover_id }
+        : { cover: null, pending_open_library_cover_id: null };
     }
     return {};
   }

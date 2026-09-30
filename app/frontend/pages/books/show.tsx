@@ -1,7 +1,7 @@
 import { Head, Link } from "@inertiajs/react";
-import { BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import BookCover from "./book_cover";
 import DeleteDialog from "./delete_dialog";
 import type { Book } from "./types";
 import { Badge } from "@/components/ui/badge";
@@ -28,17 +28,11 @@ export default function Show({ book }: ShowProps) {
 
       <Card>
         <div className="flex flex-col gap-(--card-spacing) sm:flex-row">
-          {book.cover_url ? (
-            <img
-              src={book.cover_url}
-              alt=""
-              className="mx-(--card-spacing) aspect-2/3 w-40 shrink-0 self-start rounded-md object-cover sm:mr-0"
-            />
-          ) : (
-            <div className="mx-(--card-spacing) flex aspect-2/3 w-40 shrink-0 self-start items-center justify-center rounded-md bg-muted text-muted-foreground sm:mr-0">
-              <BookOpen aria-hidden="true" className="size-8" />
-            </div>
-          )}
+          <BookCover
+            url={book.cover_url}
+            className="mx-(--card-spacing) w-40 shrink-0 self-start sm:mr-0"
+            iconClassName="size-8"
+          />
 
           <div className="flex min-w-0 flex-1 flex-col gap-(--card-spacing)">
             <CardHeader>

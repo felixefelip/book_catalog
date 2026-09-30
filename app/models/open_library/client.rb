@@ -14,6 +14,10 @@ module OpenLibrary
     default_timeout 5
     headers "User-Agent" => "BookCatalog/1.0"
 
+    def self.cover_url(cover_id, size: "M")
+      "#{COVERS_HOST}/b/id/#{cover_id}-#{size}.jpg?default=false"
+    end
+
     def search(title)
       response = get_json("/search.json", query: { title: title, fields: SEARCH_FIELDS.join(","), limit: SEARCH_LIMIT })
 
@@ -58,7 +62,7 @@ module OpenLibrary
           published_year: doc["first_publish_year"],
           subjects: Array(doc["subject"]),
           cover_id: doc["cover_i"],
-          cover_url: ("#{COVERS_HOST}/b/id/#{doc["cover_i"]}-M.jpg" if doc["cover_i"])
+          cover_url: (self.class.cover_url(doc["cover_i"]) if doc["cover_i"])
         }
       end
   end

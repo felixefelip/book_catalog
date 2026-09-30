@@ -234,8 +234,8 @@ RSpec.describe "Books", type: :request do
     context "with an Open Library cover" do
       it "enqueues the cover download" do
         expect {
-          post books_path, params: { book: valid_params[:book].merge(open_library_cover_id: "647501") }
-        }.to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(instance_of(Book), 647501)
+          post books_path, params: { book: valid_params[:book].merge(pending_open_library_cover_id: "647501") }
+        }.to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(instance_of(Book))
       end
     end
 
@@ -332,14 +332,23 @@ RSpec.describe "Books", type: :request do
 
       it "enqueues the new cover download when the work has a cover" do
         expect {
-          patch book_path(book), params: { book: { open_library_cover_id: "647501" } }
-        }.to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(book, 647501)
+          patch book_path(book), params: { book: { pending_open_library_cover_id: "647501" } }
+        }.to have_enqueued_job(Book::AttachOpenLibraryCoverJob).with(book)
       end
 
       it "keeps the cover when the Open Library cover id is null" do
-        patch book_path(book), params: { book: { open_library_cover_id: nil } }, as: :json
+        patch book_path(book), params: { book: { pending_open_library_cover_id: nil } }, as: :json
 
         expect(book.reload.cover).to be_attached
+      end
+
+      it "clears a pending Open Library cover when an image is uploaded" do
+        book.update!(pending_open_library_cover_id: 647501)
+
+        patch book_path(book), params: { book: { cover: fixture_file_upload("cover.png", "image/png"), pending_open_library_cover_id: "" } }
+
+        expect(book.reload).not_to be_cover_pending
+        expect(book.cover.filename.to_s).to eq("cover.png")
       end
 
       it "replaces the cover with an uploaded image" do

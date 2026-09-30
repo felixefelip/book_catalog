@@ -32,7 +32,7 @@ RSpec.describe OpenLibrary::Client do
           published_year: 1899,
           subjects: %w[Fiction Adultery Jealousy Brazil Memory Religion],
           cover_id: 647501,
-          cover_url: "https://covers.openlibrary.org/b/id/647501-M.jpg"
+          cover_url: "https://covers.openlibrary.org/b/id/647501-M.jpg?default=false"
         }
       ])
     end
