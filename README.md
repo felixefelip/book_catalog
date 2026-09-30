@@ -103,6 +103,37 @@ docker compose -p book_catalog logs -f postgres
 - **System specs:** dentro do container, os specs usam o Chrome remoto do serviço `selenium`. As variáveis `SELENIUM_HOST` e `CAPYBARA_SERVER_PORT` ativam esse modo, e a configuração está em `spec/support/system.rb`.
 - **Imagem de produção:** o `Dockerfile` da raiz é o de produção, usado no Kubernetes (veja [Kubernetes local](#kubernetes-local)), e não é usado neste ambiente.
 
+## CI
+
+O CI roda no GitHub Actions (`.github/workflows/ci.yml`) em todo pull request e a cada push na `main`.
+
+| Job         | O que faz                                                                |
+| ----------- | ------------------------------------------------------------------------ |
+| `scan_ruby` | Brakeman e bundler-audit                                                 |
+| `lint`      | RuboCop                                                                  |
+| `test`      | RSpec com Postgres, incluindo os system specs, e cobertura com SimpleCov |
+| `frontend`  | Checagem de tipos (`npm run check`) e testes do Vitest com cobertura     |
+
+Os jobs `test` e `frontend` publicam no commit os status `coverage-ruby` e `coverage-frontend`, com a porcentagem de linhas e branches cobertos. O relatório do SimpleCov fica disponível como artifact `coverage` e, se algum system spec falhar, os screenshots ficam no artifact `screenshots`.
+
+### Rodar localmente
+
+O `bin/ci` roda as mesmas verificações do GitHub Actions, com os passos definidos em `config/ci.rb`: setup, RuboCop, bundler-audit, Brakeman, RSpec, checagem de tipos, Vitest e seeds.
+
+```
+
+### Cobertura
+
+| Parte    | Ferramenta           | Configuração           | Mínimo                                                             | Relatório                      |
+| -------- | -------------------- | ---------------------- | ------------------------------------------------------------------ | ------------------------------ |
+| Rails    | SimpleCov            | `spec/rails_helper.rb` | 98% de linhas e 95% de branches                                    | `coverage/index.html`          |
+| Frontend | Vitest (provider v8) | `vitest.config.ts`     | 99% de linhas, 95% de branches, 98% de statements e 96% de funções | `coverage/frontend/index.html` |
+
+- **SimpleCov:** mede sempre a cobertura, mas só exige o mínimo quando a variável `CI` está definida. O GitHub Actions e o `bin/ci` definem essa variável. Para exigir o mínimo num `rspec` avulso, use `CI=true bundle exec rspec`.
+- **Vitest:** exige o mínimo sempre que roda com `--coverage`. Os componentes do Shadcn (`components/ui`), os entrypoints, os tipos e os próprios testes ficam fora da conta.
+- **Mínimo do Vitest sobe sozinho:** com o `autoUpdate`, quando a cobertura passa do mínimo o Vitest reescreve os valores em `vitest.config.ts`. Se o arquivo mudar depois de rodar os testes, commite a mudança junto.
+- **Relatórios:** a pasta `coverage/` fica no projeto (e no `.gitignore`), então dá para abrir os HTML direto no navegador do host.
+
 ## Kubernetes local
 
 Roda a imagem de produção do projeto (`Dockerfile` da raiz) num cluster Kubernetes local com o kind. Os manifests ficam em `k8s/`.
