@@ -18,7 +18,7 @@ RSpec.describe OpenLibrary::Client do
 
       results = client.search("dom casmurro")
 
-      expect(WebMock).to have_requested(:get, "https://openlibrary.org/search.json")
+      expect(WebMock).to have_requested(:get, OpenLibraryHelpers::OPEN_LIBRARY_SEARCH_URL).once
         .with(
           query: { title: "dom casmurro", fields: described_class::SEARCH_FIELDS.join(","), limit: "10" },
           headers: { "User-Agent" => "BookCatalog/1.0" }
@@ -51,19 +51,19 @@ RSpec.describe OpenLibrary::Client do
     end
 
     it "raises an error when the request times out" do
-      stub_request(:get, %r{\Ahttps://openlibrary\.org/search\.json}).to_timeout
+      stub_request(:get, OpenLibraryHelpers::OPEN_LIBRARY_SEARCH_URL).with(query: hash_including({})).to_timeout
 
       expect { client.search("dom casmurro") }.to raise_error(OpenLibrary::Client::Error)
     end
 
     it "raises an error when the host cannot be reached" do
-      stub_request(:get, %r{\Ahttps://openlibrary\.org/search\.json}).to_raise(SocketError)
+      stub_request(:get, OpenLibraryHelpers::OPEN_LIBRARY_SEARCH_URL).with(query: hash_including({})).to_raise(SocketError)
 
       expect { client.search("dom casmurro") }.to raise_error(OpenLibrary::Client::Error)
     end
 
     it "raises an error when the response is not valid JSON" do
-      stub_request(:get, %r{\Ahttps://openlibrary\.org/search\.json}).to_return(status: 200, body: "<html>")
+      stub_request(:get, OpenLibraryHelpers::OPEN_LIBRARY_SEARCH_URL).with(query: hash_including({})).to_return(status: 200, body: "<html>")
 
       expect { client.search("dom casmurro") }.to raise_error(OpenLibrary::Client::Error)
     end
