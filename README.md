@@ -7,6 +7,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [Telas](#telas)
 - [Checklist do desafio](#checklist-do-desafio)
 - [Decisões técnicas](#decisões-técnicas)
+  - [Convenções do Rails e da 37signals](#convenções-do-rails-e-da-37signals)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
 - [Dev Container](#dev-container)
 - [CI](#ci)
@@ -71,6 +72,21 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [ ] Seção sobre o uso de IA, com pelo menos um exemplo de sugestão incorreta e a correção
 
 ## Decisões técnicas
+
+### Convenções do Rails e da 37signals
+
+O projeto segue as convenções do Rails e o estilo da 37signals (Basecamp, HEY), que prioriza modelos ricos e usa o mínimo de camadas extras.
+
+- **Só MVC, sem `app/services`:** a regra de negócio fica nos models. Objetos que não são tabelas também ficam em `app/models`, como o `OpenLibrary::Client`, que é um PORO.
+- **Concerns por assunto:** o `Book` é dividido em concerns com namespace próprio, em `app/models/book/`. Cada um reúne associações, validações, scopes e métodos de um mesmo assunto, como descrito em [Code I like (III): Good concerns](https://world.hey.com/jorge/code-i-like-iii-good-concerns-5a1b391c):
+  - `Book::Authorable`: autores e o filtro por autor.
+  - `Book::Genreable`: gêneros e o filtro por gênero.
+  - `Book::Coverable`: a capa, com a validação de tipo e tamanho da imagem, e o download da capa da Open Library em segundo plano.
+- **Jobs finos:** o `Book::AttachOpenLibraryCoverJob` só chama `book.attach_open_library_cover_now`. A lógica fica no model, e o job cuida só de rodar em segundo plano e das novas tentativas. É o padrão `_later`/`_now`.
+- **Controllers REST:** os controllers só usam as actions padrão. A busca na Open Library é um recurso próprio (`OpenLibrary::BooksController`, com `index` e `show`), e não uma action extra no `BooksController`.
+- **Filtros com scopes:** cada filtro da listagem é um scope do model, e o `Book.filter_by` junta todos. O controller só repassa os parâmetros.
+- **Ferramentas nativas do Rails:** a autenticação vem do gerador do Rails 8 (`Current`, `Session` e o concern `Authentication`), e os jobs usam o Solid Queue, sem Devise nem Redis.
+- **Estilo de código:** o RuboCop usa o `rubocop-rails-omakase`, que é o padrão do Rails.
 
 ### Indisponibilidade ou resposta vazia da Open Library
 
