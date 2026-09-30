@@ -2,6 +2,12 @@
 
 Catálogo de livros feito com Rails, Inertia e React, com importação de dados da Open Library.
 
+## Telas
+
+![Listagem de livros com filtros](docs/screenshots/books_index.png)
+
+![Edição de um livro](docs/screenshots/edit_book.png)
+
 ## Sumário
 
 - [Checklist do desafio](#checklist-do-desafio)
