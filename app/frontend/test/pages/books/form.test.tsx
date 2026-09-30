@@ -75,6 +75,24 @@ const submitButton = () => screen.getByRole("button", { name: /Cadastrar livro|S
 
 const lastVisitOptions = (method: "post" | "patch") => vi.mocked(router[method]).mock.lastCall![2]!;
 
+const chips = (container: HTMLElement, id: string) =>
+  Array.from(
+    container
+      .querySelector(`#${id}`)!
+      .closest("[data-slot=combobox-chips]")!
+      .querySelectorAll("[data-slot=combobox-chip]"),
+  ).map((chip) => chip.textContent);
+
+const namesResponse = (names: string[]) =>
+  ({ ok: true, status: 200, json: async () => ({ names, next_page: null }) }) as Response;
+
+const typeInSelect = async (user: ReturnType<typeof userEvent.setup>, label: string, text: string) => {
+  const input = screen.getByLabelText(label);
+  await user.click(input);
+  await user.type(input, text);
+  await act(() => vi.advanceTimersByTimeAsync(300));
+};
+
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   Element.prototype.scrollIntoView = vi.fn();
@@ -82,6 +100,9 @@ beforeEach(() => {
   vi.mocked(fetchOpenLibraryDescription).mockResolvedValue("Um clássico da ficção científica.");
   vi.spyOn(router, "post").mockImplementation(() => {});
   vi.spyOn(router, "patch").mockImplementation(() => {});
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (url) =>
+    namesResponse(String(url).startsWith("/authors") ? ["Frank Herbert", "Brian Herbert"] : ["Romance"]),
+  );
 });
 
 afterEach(() => {
@@ -91,16 +112,20 @@ afterEach(() => {
 });
 
 describe("Books form", () => {
-  it("starts empty and keeps the submit disabled until a book is chosen", () => {
-    renderForm();
+  it("starts empty and keeps the submit disabled until a title is typed", async () => {
+    const { user, title, container } = renderForm();
 
-    expect(screen.getByLabelText("Autores")).toHaveValue("");
-    expect(screen.getByText("Nenhum gênero informado.")).toBeInTheDocument();
+    expect(chips(container, "authors")).toEqual([]);
+    expect(chips(container, "genres")).toEqual([]);
     expect(submitButton()).toBeDisabled();
+
+    await user.type(title, "Livro sem cadastro");
+
+    expect(submitButton()).toBeEnabled();
   });
 
   it("shows the current values of the book being edited", () => {
-    const { title } = renderForm({
+    const { title, container } = renderForm({
       ...emptyBook,
       id: 1,
       title: "Dom Casmurro",
@@ -111,11 +136,11 @@ describe("Books form", () => {
     });
 
     expect(title).toHaveValue("Dom Casmurro");
-    expect(screen.getByLabelText("Autores")).toHaveValue("Machado de Assis");
+    expect(chips(container, "authors")).toEqual(["Machado de Assis"]);
     expect(screen.getByLabelText("Ano de publicação")).toHaveValue("1899");
-    expect(screen.getByText("Romance")).toBeInTheDocument();
+    expect(chips(container, "genres")).toEqual(["Romance"]);
     expect(screen.getByLabelText("Descrição")).toHaveValue("Bentinho e Capitu.");
-    expect(submitButton()).toBeDisabled();
+    expect(submitButton()).toBeEnabled();
   });
 
   it("fills the fields with the chosen book and its description", async () => {
@@ -124,9 +149,9 @@ describe("Books form", () => {
     await chooseBookAndWaitDescription(user, dune);
 
     expect(title).toHaveValue("Duna");
-    expect(screen.getByLabelText("Autores")).toHaveValue("Frank Herbert");
+    expect(chips(container, "authors")).toEqual(["Frank Herbert"]);
     expect(screen.getByLabelText("Ano de publicação")).toHaveValue("1965");
-    expect(screen.getByText("Ficção científica")).toBeInTheDocument();
+    expect(chips(container, "genres")).toEqual(["Ficção científica", "Deserto"]);
     expect(container.querySelector("img")).toHaveAttribute("src", dune.cover_url);
     expect(fetchOpenLibraryDescription).toHaveBeenCalledWith("OL1W");
     expect(screen.getByLabelText("Descrição")).toHaveValue("Um clássico da ficção científica.");
@@ -141,6 +166,7 @@ describe("Books form", () => {
     await chooseBook(user, dune);
 
     expect(screen.getByLabelText("Descrição")).toHaveAttribute("placeholder", "Carregando descrição...");
+    expect(screen.getByLabelText("Descrição")).toHaveAttribute("readonly");
     expect(submitButton()).toBeDisabled();
 
     await act(async () => description.resolve("Um clássico."));
@@ -196,7 +222,7 @@ describe("Books form", () => {
         book: {
           title: "Duna",
           author_names: ["Frank Herbert"],
-          published_year: 1965,
+          published_year: "1965",
           description: "Um clássico da ficção científica.",
           genre_names: ["Ficção científica", "Deserto"],
           open_library_cover_id: 123,
@@ -204,6 +230,111 @@ describe("Books form", () => {
       },
       expect.any(Object),
     );
+  });
+
+  it("submits the fields edited after choosing a book", async () => {
+    const { user } = renderForm();
+
+    await chooseBookAndWaitDescription(user, dune);
+    await user.clear(screen.getByLabelText("Ano de publicação"));
+    await user.type(screen.getByLabelText("Ano de publicação"), "1966");
+    await user.clear(screen.getByLabelText("Descrição"));
+    await user.type(screen.getByLabelText("Descrição"), "Arrakis.");
+    await user.click(submitButton());
+
+    expect(router.post).toHaveBeenCalledWith(
+      "/books",
+      { book: expect.objectContaining({ published_year: "1966", description: "Arrakis.", open_library_cover_id: 123 }) },
+      expect.any(Object),
+    );
+  });
+
+  it("submits the edited book without touching its cover when no book is chosen", async () => {
+    const { user, title } = renderForm(
+      {
+        ...emptyBook,
+        id: 1,
+        title: "Dom Casmurro",
+        authors: ["Machado de Assis"],
+        published_year: 1899,
+        genres: ["Romance"],
+        description: "Bentinho e Capitu.",
+      },
+      "patch",
+    );
+
+    await user.type(title, " (edição revisada)");
+    await user.clear(screen.getByLabelText("Ano de publicação"));
+    await user.click(submitButton());
+
+    expect(router.patch).toHaveBeenCalledWith(
+      "/books",
+      {
+        book: {
+          title: "Dom Casmurro (edição revisada)",
+          author_names: ["Machado de Assis"],
+          published_year: null,
+          description: "Bentinho e Capitu.",
+          genre_names: ["Romance"],
+        },
+      },
+      expect.any(Object),
+    );
+  });
+
+  it("adds an existing author suggested by the autocomplete", async () => {
+    const { user, title, container } = renderForm();
+
+    await user.type(title, "Duna");
+    await typeInSelect(user, "Autores", "herb");
+
+    expect(fetch).toHaveBeenLastCalledWith("/authors?q=herb&page=1", expect.any(Object));
+
+    await user.click(screen.getByRole("option", { name: "Frank Herbert" }));
+
+    expect(chips(container, "authors")).toEqual(["Frank Herbert"]);
+  });
+
+  it("offers to add authors and genres that do not exist yet", async () => {
+    const { user, title, container } = renderForm();
+
+    await user.type(title, "Livro novo");
+    await typeInSelect(user, "Autores", "Autora Nova");
+    await user.click(screen.getByRole("option", { name: 'Adicionar "Autora Nova"' }));
+    await typeInSelect(user, "Gêneros", "Fantasia{Enter}");
+
+    expect(chips(container, "authors")).toEqual(["Autora Nova"]);
+    expect(chips(container, "genres")).toEqual(["Fantasia"]);
+
+    await user.click(submitButton());
+
+    expect(router.post).toHaveBeenCalledWith(
+      "/books",
+      { book: expect.objectContaining({ author_names: ["Autora Nova"], genre_names: ["Fantasia"] }) },
+      expect.any(Object),
+    );
+  });
+
+  it("does not offer to add a name that is already suggested", async () => {
+    const { user } = renderForm();
+
+    await typeInSelect(user, "Autores", "frank herbert");
+
+    expect(screen.getByRole("option", { name: "Frank Herbert" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: /Adicionar/ })).not.toBeInTheDocument();
+  });
+
+  it("removes a genre", async () => {
+    const { user, container } = renderForm({ ...emptyBook, id: 1, title: "Duna", genres: ["Romance", "Deserto"] });
+
+    await user.click(
+      container
+        .querySelector("#genres")!
+        .closest("[data-slot=combobox-chips]")!
+        .querySelector("[data-slot=combobox-chip-remove]")!,
+    );
+
+    expect(chips(container, "genres")).toEqual(["Deserto"]);
   });
 
   it("uses the given method", async () => {
@@ -236,9 +367,16 @@ describe("Books form", () => {
 
     await chooseBookAndWaitDescription(user, dune);
     await user.click(submitButton());
-    act(() => lastVisitOptions("post").onError!({ title: ["já foi cadastrado"] } as never));
+    act(() =>
+      lastVisitOptions("post").onError!({
+        title: ["já foi cadastrado"],
+        published_year: ["não é um número"],
+      } as never),
+    );
 
     expect(screen.getByText("já foi cadastrado")).toBeInTheDocument();
     expect(title).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByText("não é um número")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ano de publicação")).toHaveAttribute("aria-invalid", "true");
   });
 });

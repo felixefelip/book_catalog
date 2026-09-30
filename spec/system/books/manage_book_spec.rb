@@ -34,7 +34,7 @@ RSpec.describe "Managing a book", type: :system do
       fill_in "Título", with: "Memórias Póstumas"
       find("[role=option]", text: "Machado de Assis · 1881").click
 
-      expect(page).to have_field("Ano de publicação", with: "1881", readonly: true)
+      expect(page).to have_field("Ano de publicação", with: "1881")
 
       click_button "Salvar alterações"
 
@@ -46,6 +46,29 @@ RSpec.describe "Managing a book", type: :system do
       expect(book.reload).to have_attributes(title: "Memórias Póstumas de Brás Cubas", published_year: 1881,
         description: "Ao verme que primeiro roeu.")
       expect(book.genre_names).to contain_exactly("Romance", "Realismo")
+    end
+  end
+
+  describe "editing by hand" do
+    it "changes the fields and keeps the cover" do
+      book.cover.attach(io: file_fixture("cover.png").open, filename: "cover.png")
+      sign_in_as(owner)
+
+      visit edit_book_path(book)
+      fill_in "Ano de publicação", with: "1900"
+      within(find_field("Gêneros").ancestor("[data-slot=combobox-chips]")) do
+        find("[data-slot=combobox-chip]", text: "Romance").find("[data-slot=combobox-chip-remove]").click
+      end
+      fill_in "Gêneros", with: "Realismo"
+      find("[role=option]", text: 'Adicionar "Realismo"').click
+
+      click_button "Salvar alterações"
+
+      expect(page).to have_text("Livro atualizado com sucesso.")
+      expect(book.reload).to have_attributes(title: "Dom Casmurro", published_year: 1900)
+      expect(book.genre_names).to eq([ "Realismo" ])
+      expect(book.author_names).to eq([ "Machado de Assis" ])
+      expect(book.cover).to be_attached
     end
   end
 

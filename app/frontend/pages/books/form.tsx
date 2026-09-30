@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { fetchOpenLibraryDescription } from "./open_library";
 import TitleLookup from "./title_lookup";
 import type { Book, BookFormType, OpenLibraryBook } from "./types";
-import { Badge } from "@/components/ui/badge";
+import RemoteMultiSelect from "@/components/remote_multi_select";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -25,53 +25,50 @@ type FormProps = FormComponentProps<BookFormType> & {
   submitText: string;
 };
 
-type Work = OpenLibraryBook & { description: string | null };
-
-const READ_ONLY_FIELD =
-  "read-only:cursor-default read-only:bg-muted dark:read-only:bg-muted";
-
 export default function Form({ book, submitText, ...formProps }: FormProps) {
   const { t } = useTranslation();
-  const [query, setQuery] = useState(book.title ?? "");
-  const [work, setWork] = useState<Work | null>(null);
+  const [title, setTitle] = useState(book.title ?? "");
+  const [authors, setAuthors] = useState(book.authors);
+  const [publishedYear, setPublishedYear] = useState(
+    book.published_year?.toString() ?? "",
+  );
+  const [genres, setGenres] = useState(book.genres);
+  const [description, setDescription] = useState(book.description ?? "");
+  const [work, setWork] = useState<OpenLibraryBook | null>(null);
   const [loadingDescription, setLoadingDescription] = useState(false);
   const selectedWorkId = useRef<string | null>(null);
 
-  const values = work
-    ? {
-        authors: work.authors,
-        published_year: work.published_year,
-        genres: work.subjects,
-        description: work.description,
-        cover_url: work.cover_url,
-      }
-    : book;
+  const coverUrl = work ? work.cover_url : book.cover_url;
 
   async function selectWork(result: OpenLibraryBook) {
     selectedWorkId.current = result.id;
-    setQuery(result.title);
-    setWork({ ...result, description: null });
+    setWork(result);
+    setTitle(result.title);
+    setAuthors(result.authors);
+    setPublishedYear(result.published_year?.toString() ?? "");
+    setGenres(result.subjects);
+    setDescription("");
     setLoadingDescription(true);
 
-    const description = await fetchOpenLibraryDescription(result.id).catch(
+    const fetchedDescription = await fetchOpenLibraryDescription(result.id).catch(
       () => null,
     );
     if (selectedWorkId.current !== result.id) return;
 
-    setWork((current) => current && { ...current, description });
+    setDescription(fetchedDescription ?? "");
     setLoadingDescription(false);
   }
 
   return (
     <InertiaForm<BookFormType>
       transform={() => ({
-        book: work && {
-          title: work.title,
-          author_names: work.authors,
-          published_year: work.published_year,
-          description: work.description,
-          genre_names: work.subjects,
-          open_library_cover_id: work.cover_id,
+        book: {
+          title: title.trim(),
+          author_names: authors,
+          published_year: publishedYear.trim() || null,
+          description: description.trim() || null,
+          genre_names: genres,
+          ...(work && { open_library_cover_id: work.cover_id }),
         },
       })}
       {...formProps}
@@ -83,8 +80,8 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             <TitleLookup
               id="title"
               aria-invalid={!!errors.title}
-              value={query}
-              onChange={setQuery}
+              value={title}
+              onChange={setTitle}
               onSelect={selectWork}
             />
             <FieldError errors={toFieldErrors(errors.title)} />
@@ -92,42 +89,45 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
 
           <Field>
             <FieldLabel htmlFor="authors">{t("books.form.authors")}</FieldLabel>
-            <Input
-              type="text"
+            <RemoteMultiSelect
               id="authors"
-              readOnly
-              className={READ_ONLY_FIELD}
-              value={values.authors.join(", ")}
+              url="/authors"
+              value={authors}
+              onValueChange={setAuthors}
+              placeholder={t("books.form.authors_placeholder")}
+              loadingText={t("books.form.loading_authors")}
+              emptyText={t("books.form.no_authors")}
+              createText={(name) => t("books.form.add_option", { name })}
             />
           </Field>
 
-          <Field>
+          <Field data-invalid={!!errors.published_year}>
             <FieldLabel htmlFor="published_year">
               {t("books.form.published_year")}
             </FieldLabel>
             <Input
               type="text"
+              inputMode="numeric"
               id="published_year"
-              readOnly
-              className={READ_ONLY_FIELD}
-              value={values.published_year ?? ""}
+              aria-invalid={!!errors.published_year}
+              value={publishedYear}
+              onChange={(event) => setPublishedYear(event.target.value)}
             />
+            <FieldError errors={toFieldErrors(errors.published_year)} />
           </Field>
 
           <Field className="sm:col-span-2">
-            <FieldTitle>{t("books.form.genres")}</FieldTitle>
-            <ul className="flex max-h-32 min-h-8 flex-wrap content-start gap-1 overflow-y-auto rounded-lg border border-input bg-muted px-2.5 py-1.5">
-              {values.genres.map((genre) => (
-                <li key={genre}>
-                  <Badge variant="secondary">{genre}</Badge>
-                </li>
-              ))}
-              {values.genres.length === 0 && (
-                <li className="text-sm text-muted-foreground">
-                  {t("books.form.no_genres")}
-                </li>
-              )}
-            </ul>
+            <FieldLabel htmlFor="genres">{t("books.form.genres")}</FieldLabel>
+            <RemoteMultiSelect
+              id="genres"
+              url="/genres"
+              value={genres}
+              onValueChange={setGenres}
+              placeholder={t("books.form.genres_placeholder")}
+              loadingText={t("books.form.loading_genres")}
+              emptyText={t("books.form.no_genres")}
+              createText={(name) => t("books.form.add_option", { name })}
+            />
           </Field>
 
           <Field className="sm:col-span-2">
@@ -136,9 +136,9 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             </FieldLabel>
             <Textarea
               id="description"
-              readOnly
-              className={READ_ONLY_FIELD}
-              value={values.description ?? ""}
+              readOnly={loadingDescription}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
               placeholder={
                 loadingDescription
                   ? t("books.form.loading_description")
@@ -149,9 +149,9 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
 
           <Field className="sm:col-span-2">
             <FieldTitle>{t("books.form.cover")}</FieldTitle>
-            {values.cover_url ? (
+            {coverUrl ? (
               <img
-                src={values.cover_url}
+                src={coverUrl}
                 alt=""
                 className="aspect-2/3 w-24 rounded-md object-cover"
               />
@@ -165,7 +165,7 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
           <div className="sm:col-span-2">
             <Button
               type="submit"
-              disabled={!work || loadingDescription || processing}
+              disabled={!title.trim() || loadingDescription || processing}
             >
               {processing ? t("books.form.processing") : submitText}
             </Button>

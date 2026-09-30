@@ -218,4 +218,79 @@ describe("RemoteMultiSelect", () => {
     expect(screen.getByRole("option", { name: "Frank Herbert" })).toBeInTheDocument();
     expect(screen.queryByText("Carregando autores...")).not.toBeInTheDocument();
   });
+
+  it("does not offer to add a typed name unless it can create options", async () => {
+    const { user, input } = renderSelect();
+
+    await openAndLoad(user, input);
+    await user.type(input, "Ursula");
+    await act(() => vi.advanceTimersByTimeAsync(300));
+
+    expect(screen.queryByRole("option", { name: /Ursula/ })).not.toBeInTheDocument();
+  });
+
+  describe("controlled with option creation", () => {
+    const renderCreatable = (value: string[] = []) => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const onValueChange = vi.fn();
+      const { container, rerender } = render(
+        <RemoteMultiSelect
+          id="authors"
+          url="/authors"
+          value={value}
+          onValueChange={onValueChange}
+          placeholder="Adicione os autores"
+          loadingText="Carregando autores..."
+          emptyText="Nenhum autor encontrado."
+          createText={(name) => `Adicionar "${name}"`}
+        />,
+      );
+
+      return { user, container, rerender, onValueChange, input: screen.getByRole("combobox") };
+    };
+
+    const search = async (user: ReturnType<typeof userEvent.setup>, input: HTMLElement, text: string) => {
+      await openAndLoad(user, input);
+      await user.type(input, text);
+      await act(() => vi.advanceTimersByTimeAsync(300));
+    };
+
+    it("renders the given value without hidden inputs", () => {
+      const { container } = renderCreatable(["Frank Herbert"]);
+
+      expect(screen.getByText("Frank Herbert")).toBeInTheDocument();
+      expect(container.querySelectorAll("input[type=hidden]")).toHaveLength(0);
+    });
+
+    it("offers to add the typed name and reports it", async () => {
+      const { user, input, onValueChange } = renderCreatable(["Frank Herbert"]);
+
+      await search(user, input, "  Ursula K. Le Guin ");
+      await user.click(screen.getByRole("option", { name: 'Adicionar "Ursula K. Le Guin"' }));
+
+      expect(onValueChange).toHaveBeenLastCalledWith(["Frank Herbert", "Ursula K. Le Guin"]);
+    });
+
+    it("adds the typed name when pressing enter", async () => {
+      const { user, input, onValueChange } = renderCreatable();
+
+      await search(user, input, "Ursula{Enter}");
+
+      expect(onValueChange).toHaveBeenLastCalledWith(["Ursula"]);
+    });
+
+    it("does not offer names that are already suggested or selected, ignoring case", async () => {
+      const { user, input } = renderCreatable(["Isaac Asimov"]);
+
+      await search(user, input, "FRANK HERBERT");
+
+      expect(screen.queryByRole("option", { name: /Adicionar/ })).not.toBeInTheDocument();
+
+      await user.clear(input);
+      await user.type(input, "isaac asimov");
+      await act(() => vi.advanceTimersByTimeAsync(300));
+
+      expect(screen.queryByRole("option", { name: /Adicionar/ })).not.toBeInTheDocument();
+    });
+  });
 });

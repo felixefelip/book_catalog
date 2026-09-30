@@ -9,10 +9,11 @@ export interface Book {
   can: { update: boolean; destroy: boolean }
 }
 
-export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'authors' | 'genres' | 'can'> & {
+export type BookFormType = Omit<Book, 'id' | 'cover_url' | 'authors' | 'genres' | 'published_year' | 'can'> & {
   author_names: string[]
+  published_year: string | null
   genre_names: string[]
-  open_library_cover_id: number | null
+  open_library_cover_id?: number | null
 }
 
 export type BookFilters = {

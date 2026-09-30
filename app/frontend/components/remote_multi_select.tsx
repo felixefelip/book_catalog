@@ -29,33 +29,58 @@ async function fetchNames(url: string, query: string, page: number, signal: Abor
   return (await response.json()) as NamesPage;
 }
 
+const includesName = (names: string[], name: string) =>
+  names.some((current) => current.toLowerCase() === name.toLowerCase());
+
 type RemoteMultiSelectProps = {
   id: string;
-  name: string;
+  name?: string;
   url: string;
-  defaultValue: string[];
+  defaultValue?: string[];
+  value?: string[];
+  onValueChange?: (value: string[]) => void;
   placeholder: string;
   loadingText: string;
   emptyText: string;
+  createText?: (name: string) => string;
+  "aria-invalid"?: boolean;
 };
 
 export default function RemoteMultiSelect({
   id,
   name,
   url,
-  defaultValue,
+  defaultValue = [],
+  value,
+  onValueChange,
   placeholder,
   loadingText,
   emptyText,
+  createText,
+  "aria-invalid": ariaInvalid,
 }: RemoteMultiSelectProps) {
   const anchor = useComboboxAnchor();
-  const [selected, setSelected] = useState(defaultValue);
+  const [uncontrolledSelected, setUncontrolledSelected] = useState(defaultValue);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [options, setOptions] = useState<string[]>([]);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const request = useRef<AbortController | null>(null);
+
+  const selected = value ?? uncontrolledSelected;
+  const newName = query.trim();
+  const canCreate =
+    !!createText &&
+    newName !== "" &&
+    !includesName(options, newName) &&
+    !includesName(selected, newName);
+  const items = canCreate ? [newName, ...options] : options;
+
+  function changeSelected(names: string[]) {
+    setUncontrolledSelected(names);
+    onValueChange?.(names);
+  }
 
   async function load(page: number, search: string) {
     request.current?.abort();
@@ -93,10 +118,11 @@ export default function RemoteMultiSelect({
     <>
       <Combobox
         multiple
-        items={options}
+        items={items}
         filter={null}
+        autoHighlight={!!createText}
         value={selected}
-        onValueChange={setSelected}
+        onValueChange={changeSelected}
         inputValue={query}
         onInputValueChange={setQuery}
         open={open}
@@ -111,6 +137,7 @@ export default function RemoteMultiSelect({
                 ))}
                 <ComboboxChipsInput
                   id={id}
+                  aria-invalid={ariaInvalid}
                   placeholder={values.length ? undefined : placeholder}
                 />
               </Fragment>
@@ -124,16 +151,17 @@ export default function RemoteMultiSelect({
           <ComboboxList onScroll={handleScroll}>
             {(option: string) => (
               <ComboboxItem key={option} value={option}>
-                {option}
+                {canCreate && option === newName ? createText!(option) : option}
               </ComboboxItem>
             )}
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
 
-      {selected.map((value) => (
-        <input key={value} type="hidden" name={`${name}[]`} value={value} />
-      ))}
+      {name &&
+        selected.map((value) => (
+          <input key={value} type="hidden" name={`${name}[]`} value={value} />
+        ))}
     </>
   );
 }
