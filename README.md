@@ -120,8 +120,6 @@ Os jobs `test` e `frontend` publicam no commit os status `coverage-ruby` e `cove
 
 O `bin/ci` roda as mesmas verificações do GitHub Actions, com os passos definidos em `config/ci.rb`: setup, RuboCop, bundler-audit, Brakeman, RSpec, checagem de tipos, Vitest e seeds.
 
-```
-
 ### Cobertura
 
 | Parte    | Ferramenta           | Configuração           | Mínimo                                                             | Relatório                      |
