@@ -1,9 +1,9 @@
 import { type FormComponentProps } from "@inertiajs/core";
 import { Form as InertiaForm } from "@inertiajs/react";
-import { BookOpen } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import CoverField from "./cover_field";
 import { fetchOpenLibraryDescription } from "./open_library";
 import TitleLookup from "./title_lookup";
 import type { Book, BookFormType, OpenLibraryBook } from "./types";
@@ -11,7 +11,6 @@ import RemoteMultiSelect from "@/components/remote_multi_select";
 import { Button } from "@/components/ui/button";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -19,8 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toFieldErrors } from "@/lib/field_errors";
-
-const COVER_TYPES = "image/jpeg,image/png,image/webp";
 
 const namesOrBlank = (names: string[]) => (names.length ? names : [""]);
 
@@ -40,32 +37,13 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
   const [description, setDescription] = useState(book.description ?? "");
   const [work, setWork] = useState<OpenLibraryBook | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverFileUrl, setCoverFileUrl] = useState<string | null>(null);
   const [removeCover, setRemoveCover] = useState(false);
   const [loadingDescription, setLoadingDescription] = useState(false);
   const selectedWorkId = useRef<string | null>(null);
-  const coverInput = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!coverFile) {
-      setCoverFileUrl(null);
-      return;
-    }
+  const coverUrl = removeCover ? null : work ? work.cover_url : book.cover_url;
 
-    const url = URL.createObjectURL(coverFile);
-    setCoverFileUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [coverFile]);
-
-  const coverUrl =
-    coverFileUrl ??
-    (removeCover ? null : work ? work.cover_url : book.cover_url);
-
-  function chooseCoverFile(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-
+  function chooseCover(file: File) {
     setCoverFile(file);
     setRemoveCover(false);
   }
@@ -195,55 +173,13 @@ export default function Form({ book, submitText, ...formProps }: FormProps) {
             />
           </Field>
 
-          <Field data-invalid={!!errors.cover} className="sm:col-span-2">
-            <FieldLabel htmlFor="cover">{t("books.form.cover")}</FieldLabel>
-            <div className="flex items-end gap-4">
-              {coverUrl ? (
-                <img
-                  src={coverUrl}
-                  alt=""
-                  className="aspect-2/3 w-24 rounded-md object-cover"
-                />
-              ) : (
-                <div className="flex aspect-2/3 w-24 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                  <BookOpen aria-hidden="true" />
-                </div>
-              )}
-              <div className="flex flex-col items-start gap-2">
-                <input
-                  ref={coverInput}
-                  type="file"
-                  id="cover"
-                  accept={COVER_TYPES}
-                  aria-invalid={!!errors.cover}
-                  className="sr-only"
-                  onChange={chooseCoverFile}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => coverInput.current?.click()}
-                >
-                  {coverUrl
-                    ? t("books.form.change_cover")
-                    : t("books.form.upload_cover")}
-                </Button>
-                {coverUrl && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearCover}
-                  >
-                    {t("books.form.remove_cover")}
-                  </Button>
-                )}
-              </div>
-            </div>
-            <FieldDescription>{t("books.form.cover_hint")}</FieldDescription>
-            <FieldError errors={toFieldErrors(errors.cover)} />
-          </Field>
+          <CoverField
+            file={coverFile}
+            url={coverUrl}
+            errors={errors.cover}
+            onSelect={chooseCover}
+            onRemove={clearCover}
+          />
 
           <div className="sm:col-span-2">
             <Button
