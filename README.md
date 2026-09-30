@@ -9,6 +9,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [Decisões técnicas](#decisões-técnicas)
   - [Convenções do Rails e da 37signals](#convenções-do-rails-e-da-37signals)
   - [Cadastro duplicado de livros](#cadastro-duplicado-de-livros)
+  - [Acesso ao `/books.json`](#acesso-ao-booksjson)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
 - [Com mais tempo](#com-mais-tempo)
 - [Dev Container](#dev-container)
@@ -45,7 +46,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 
 - [x] [Cadastro duplicado de livros](#cadastro-duplicado-de-livros): é permitido
 - [x] Open Library indisponível ou sem resultados: o backend responde `502` e o formulário mostra a mensagem de erro ou de "nenhum resultado"
-- [ ] Nível de acesso ao `/books.json`
+- [x] [Nível de acesso ao `/books.json`](#acesso-ao-booksjson): é público
 
 ### Requisitos técnicos
 
@@ -69,7 +70,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 ### README
 
 - [x] Instruções de como rodar
-- [ ] Seção de decisões técnicas (as três situações em aberto e as escolhas de arquitetura)
+- [x] Seção de decisões técnicas (as três situações em aberto e as escolhas de arquitetura)
 - [x] Seção "[Com mais tempo](#com-mais-tempo)"
 - [ ] Seção sobre o uso de IA, com pelo menos um exemplo de sugestão incorreta e a correção
 
@@ -93,6 +94,10 @@ O projeto segue as convenções do Rails e o estilo da 37signals (Basecamp, HEY)
 ### Cadastro duplicado de livros
 
 A aplicação permite cadastrar livros repetidos, tanto pela mesma pessoa quanto por pessoas diferentes. Dois livros com o mesmo título podem ser edições diferentes, ou até obras diferentes, de outros autores.
+
+### Acesso ao `/books.json`
+
+O endpoint é público, igual à listagem da home. Ele mostra os mesmos dados que qualquer pessoa já vê sem login, então exigir login não protegeria nada. Ele aceita os mesmos filtros e a mesma paginação da home.
 
 ### Indisponibilidade ou resposta vazia da Open Library
 
