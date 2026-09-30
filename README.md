@@ -33,7 +33,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 
 - [x] Cadastrar, editar e remover livros, só os próprios (CanCanCan)
 - [x] Filtro "meus livros"
-- [ ] Endpoint JSON `/books.json` listando os livros
+- [x] Endpoint JSON `/books.json` listando os livros, com os mesmos filtros e a mesma paginação da home
 
 ### Fluxo de cadastro
 

@@ -164,6 +164,84 @@ RSpec.describe "Books", type: :request do
     end
   end
 
+  describe "GET /books.json" do
+    it "lists the books as JSON, most recent first" do
+      create(:book, title: "Dom Casmurro", author_names: [ "Machado de Assis" ], genre_names: [ "Romance" ],
+        published_year: 1899, description: "Bentinho e Capitu.", created_at: 2.days.ago)
+      newest = create(:book, title: "Quincas Borba", created_at: 1.day.ago)
+
+      get books_path(format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("application/json")
+      expect(response.parsed_body["books"].map { |book| book["title"] }).to eq([ "Quincas Borba", "Dom Casmurro" ])
+      expect(response.parsed_body["books"].first["url"]).to eq(book_url(newest))
+      expect(response.parsed_body["books"].last).to include(
+        "title" => "Dom Casmurro",
+        "authors" => [ "Machado de Assis" ],
+        "genres" => [ "Romance" ],
+        "published_year" => 1899,
+        "description" => "Bentinho e Capitu.",
+        "cover_url" => nil
+      )
+    end
+
+    it "includes the absolute cover url" do
+      book = create(:book)
+      book.cover.attach(fixture_file_upload("cover.png", "image/png"))
+
+      get books_path(format: :json)
+
+      expect(response.parsed_body["books"].first["cover_url"]).to start_with("http://www.example.com/").and include("cover.png")
+    end
+
+    it "includes the Open Library cover url while the cover is pending" do
+      create(:book, pending_open_library_cover_id: 123)
+
+      get books_path(format: :json)
+
+      expect(response.parsed_body["books"].first["cover_url"]).to eq(OpenLibrary::Client.cover_url(123))
+    end
+
+    it "filters the books by the given params" do
+      create(:book, title: "Dom Casmurro")
+      create(:book, title: "Duna")
+
+      get books_path(format: :json), params: { title: "dun" }
+
+      expect(response.parsed_body["books"].map { |book| book["title"] }).to eq([ "Duna" ])
+    end
+
+    context "with more books than fit in a page" do
+      before do
+        create_list(:book, 12)
+        create(:book, title: "Dom Casmurro", created_at: 1.year.ago)
+      end
+
+      it "returns the requested page with the pagination data" do
+        get books_path(format: :json), params: { page: 2 }
+
+        expect(response.parsed_body["books"].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
+        expect(response.parsed_body["pagination"]).to eq("current_page" => 2, "total_pages" => 2, "total_count" => 13)
+      end
+
+      it "redirects to the last page keeping the format when the page is out of range" do
+        get books_path(format: :json), params: { page: 5 }
+
+        expect(response).to redirect_to(books_path(page: 2, format: :json))
+      end
+    end
+
+    it "returns an empty list when there are no books" do
+      get books_path(format: :json)
+
+      expect(response.parsed_body).to eq(
+        "books" => [],
+        "pagination" => { "current_page" => 1, "total_pages" => 0, "total_count" => 0 }
+      )
+    end
+  end
+
   describe "GET /books/:id" do
     it "allows the creator to update and destroy the book" do
       book = create(:book, creator: user)
@@ -468,6 +546,15 @@ RSpec.describe "Books", type: :request do
       expect_inertia.to render_component("books/index")
       expect(inertia.props[:books].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
       expect(inertia.props[:current_user]).to be_nil
+    end
+
+    it "lists the books as JSON without a current user" do
+      create(:book, title: "Dom Casmurro")
+
+      get books_path(format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["books"].map { |book| book["title"] }).to eq([ "Dom Casmurro" ])
     end
 
     it "shows a book without a current user" do

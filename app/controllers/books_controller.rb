@@ -8,22 +8,29 @@ class BooksController < InertiaController
   before_action -> { authorize! :destroy, @book }, only: :destroy
 
   def index
-    books = Book.with_attached_cover.includes(:authors, :genres)
+    @books = Book.with_attached_cover.includes(:authors, :genres)
       .filter_by(filters.merge(creator: (Current.user if filters[:mine])))
       .order(created_at: :desc, id: :desc).page(params[:page])
 
-    return redirect_to books_path(filters.merge(page: books.total_pages)) if books.out_of_range? && books.total_pages.positive?
+    if @books.out_of_range? && @books.total_pages.positive?
+      return redirect_to books_path(**filters.symbolize_keys, page: @books.total_pages, format: params[:format])
+    end
 
-    render inertia: {
-      books: books.map { |book| serialize_book(book) },
-      pagination: {
-        current_page: books.current_page,
-        total_pages: books.total_pages,
-        total_count: books.total_count
-      },
-      filters: filters,
-      books_count: Book.count
-    }
+    respond_to do |format|
+      format.html do
+        render inertia: {
+          books: @books.map { |book| serialize_book(book) },
+          pagination: {
+            current_page: @books.current_page,
+            total_pages: @books.total_pages,
+            total_count: @books.total_count
+          },
+          filters: filters,
+          books_count: Book.count
+        }
+      end
+      format.json
+    end
   end
 
   def show
