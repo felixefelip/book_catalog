@@ -9,6 +9,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [Decisões técnicas](#decisões-técnicas)
   - [Convenções do Rails e da 37signals](#convenções-do-rails-e-da-37signals)
   - [I18n](#i18n)
+  - [Shadcn](#shadcn)
   - [Cadastro duplicado de livros](#cadastro-duplicado-de-livros)
   - [Acesso ao `/books.json`](#acesso-ao-booksjson)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
@@ -93,6 +94,12 @@ A aplicação está em português (`pt-BR`), mas nenhum texto fica fixo no códi
 - **Backend:** as mensagens de flash, os erros de validação e a mensagem de falha da Open Library vêm do Rails, traduzidas pelo `config/locales/pt-BR.yml`. As mensagens padrão de validação em português vêm da gem `rails-i18n`. Os erros de validação chegam ao frontend já traduzidos.
 - **Frontend:** os textos da interface usam o `react-i18next`, com as traduções em `app/frontend/locales/pt-BR.json`. As chaves são tipadas, então usar uma chave que não existe dá erro na checagem de tipos.
 - **Idioma:** o Rails compartilha o idioma atual com o React pelo `inertia_share`, e o frontend troca o idioma a cada navegação. Para adicionar outro idioma, é preciso criar os arquivos de tradução nos dois lados, registrar o idioma no `config/application.rb` e no `app/frontend/lib/i18n.ts`, e definir como a pessoa escolhe o idioma.
+
+### Shadcn
+
+A interface usa o [shadcn/ui](https://ui.shadcn.com), pela facilidade de uso e por já trazer prontos os componentes de que o projeto precisava, como botões, formulários, combobox, menus, diálogos e paginação. Assim, deu para ter uma interface bonita e acessível, com tema claro e escuro, sem gastar tempo construindo componentes do zero.
+
+Os componentes são copiados para o projeto, em `app/frontend/components/ui/`, em vez de virem de uma biblioteca instalada. Isso permite ajustar o código de cada um quando necessário. Eles usam o Tailwind para os estilos e o Base UI por baixo.
 
 ### Cadastro duplicado de livros
 
