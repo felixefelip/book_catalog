@@ -1,33 +1,12 @@
-# README
+# Book Catalog
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Catálogo de livros feito com Rails, Inertia e React, com importação de dados da Open Library.
 
-Things you may want to cover:
-
-- Ruby version
-
-- System dependencies
-
-- Configuration
-
-- Database creation
-
-- Database initialization
-
-- How to run the test suite
-
-- Services (job queues, cache servers, search engines, etc.)
-
-- Deployment instructions
-
-- ...
-
-# Kubernetes local
+## Kubernetes local
 
 Roda a imagem de produção do projeto (`Dockerfile` da raiz) num cluster Kubernetes local com o kind. Os manifests ficam em `k8s/`.
 
-## Manifests
+### Manifests
 
 | Arquivo              | Função                                                              |
 | -------------------- | ------------------------------------------------------------------- |
@@ -39,58 +18,57 @@ Roda a imagem de produção do projeto (`Dockerfile` da raiz) num cluster Kubern
 | `postgres.yml`       | PostgreSQL 17 com volume próprio, só para uso local                 |
 | `ingress.yml`        | Ingress nginx. Não é usado no kind, que não tem Ingress controller. |
 
-## Pré-requisitos
+### Pré-requisitos
 
 - Docker
 - `kubectl`
 - `kind`, com um cluster criado (`kind create cluster`). O cluster padrão se chama `kind`.
 
-## Subir o ambiente
+### Subir o ambiente
 
 Rode a partir da raiz do projeto.
 
 1. Gerar a imagem e carregar no cluster:
 
-```bash
-docker build -t book_catalog:latest .
-kind load docker-image book_catalog:latest
-```
+   ```bash
+   docker build -t book_catalog:latest .
+   kind load docker-image book_catalog:latest
+   ```
 
 2. Criar o Secret (só na primeira vez):
 
-```bash
-kubectl create secret generic book-catalog \
-  --from-file=RAILS_MASTER_KEY=config/master.key \
-  --from-literal=BOOK_CATALOG_DATABASE_PASSWORD=senha-local
-```
+   ```bash
+   kubectl create secret generic book-catalog \
+     --from-file=RAILS_MASTER_KEY=config/master.key \
+     --from-literal=BOOK_CATALOG_DATABASE_PASSWORD=senha-local
+   ```
 
 3. Subir o Postgres e esperar ficar pronto:
 
-```bash
-kubectl apply -f k8s/postgres.yml
-kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
-```
+   ```bash
+   kubectl apply -f k8s/postgres.yml
+   kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
+   ```
 
 4. Subir a aplicação:
 
-```bash
-kubectl apply -f k8s/configmap.yml -f k8s/pvc.yml -f k8s/deployment.yml -f k8s/service.yml
-kubectl rollout status deployment/book-catalog
-```
+   ```bash
+   kubectl apply -f k8s/configmap.yml -f k8s/pvc.yml -f k8s/deployment.yml -f k8s/service.yml
+   kubectl rollout status deployment/book-catalog
+   ```
 
 5. Acessar:
 
-```bash
-kubectl port-forward svc/book-catalog 3000:80
-```
+   ```bash
+   kubectl port-forward svc/book-catalog 3000:80
+   ```
 
-Acesse em http://localhost:3000.
+   Acesse em http://localhost:3000.
 
-### Não use `kubectl apply -f k8s/`
+> [!WARNING]
+> Não use `kubectl apply -f k8s/`: aplicar a pasta inteira inclui o `secret.example.yml` e substitui o Secret real pelos valores de exemplo. Aplique os arquivos um a um, como acima.
 
-Aplicar a pasta inteira inclui o `secret.example.yml` e substitui o Secret real pelos valores de exemplo. Aplique os arquivos um a um, como acima.
-
-## Atualizar depois de mudar o código
+### Atualizar depois de mudar o código
 
 ```bash
 docker build -t book_catalog:latest .
@@ -98,7 +76,7 @@ kind load docker-image book_catalog:latest
 kubectl rollout restart deployment/book-catalog
 ```
 
-## Rodar comandos no container
+### Rodar comandos no container
 
 ```bash
 kubectl exec -it deployment/book-catalog -- ./bin/rails console
@@ -107,7 +85,7 @@ kubectl exec -it deployment/book-catalog -- bash
 kubectl exec -it statefulset/postgres -- psql -U book_catalog book_catalog_production
 ```
 
-## Status e logs
+### Status e logs
 
 ```bash
 kubectl get pods
@@ -115,7 +93,7 @@ kubectl logs -f deployment/book-catalog
 kubectl describe pod -l app=book-catalog
 ```
 
-## Desligar
+### Desligar
 
 | Comando                                                   | Efeito                                                     |
 | --------------------------------------------------------- | ---------------------------------------------------------- |
@@ -123,7 +101,7 @@ kubectl describe pod -l app=book-catalog
 | `kubectl delete -f k8s/postgres.yml`                      | Remove o Postgres. O volume dele continua existindo.       |
 | `kind delete cluster`                                     | Apaga o cluster inteiro, **inclusive o banco e as capas**. |
 
-## Observações
+### Observações
 
 - **Jobs:** o Solid Queue roda dentro do Puma (`SOLID_QUEUE_IN_PUMA=true`), então não existe um pod separado para os jobs.
 - **Uma réplica:** as capas ficam em disco local num volume `ReadWriteOnce`, por isso o Deployment usa 1 réplica e a estratégia `Recreate`. Para escalar, é preciso trocar o Active Storage para S3, mover o Solid Queue para um Deployment próprio (`./bin/jobs`) e as migrações para um initContainer ou Job.
