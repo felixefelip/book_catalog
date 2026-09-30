@@ -2,6 +2,15 @@
 
 Catálogo de livros feito com Rails, Inertia e React, com importação de dados da Open Library.
 
+## Sumário
+
+- [Checklist do desafio](#checklist-do-desafio)
+- [Decisões técnicas](#decisões-técnicas)
+  - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
+- [Dev Container](#dev-container)
+- [CI](#ci)
+- [Kubernetes local](#kubernetes-local)
+
 ## Checklist do desafio
 
 ### Acesso público
