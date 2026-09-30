@@ -135,6 +135,7 @@ A Open Library serve para preencher o formulário, mas o cadastro não depende d
 
 - **Manter os filtros ao navegar:** a paginação já mantém os filtros, mas eles se perdem ao abrir, cadastrar ou editar um livro e voltar para a listagem. Os links de "Voltar" e os redirects depois de salvar ou excluir levam sempre para `/books`, sem os filtros e sem a página em que a pessoa estava.
 - **Linter no frontend:** o CI roda o RuboCop no Ruby, mas no frontend só checa os tipos e roda os testes. Adicionaria um linter ao CI e ao `bin/ci`.
+- **Testes de mutação:** adicionaria testes de mutação no backend e no frontend, para medir a qualidade dos testes além da cobertura.
 - **Diferenciais que faltaram:** implementaria os dois diferenciais que não deu tempo de fazer: o cache básico, por exemplo das buscas na Open Library, e o logging estruturado.
 - **Gerenciar a conta:** hoje só é possível criar a conta, entrar e redefinir a senha. Faltam telas para editar os dados da conta (nome, e-mail, senha) e para excluir a conta.
 - **Infraestrutura do Kubernetes:** guardar as capas no S3 em vez do disco local, para poder rodar mais de uma réplica. Também rodaria o Solid Queue num Deployment próprio e as migrações num initContainer ou Job, em vez de dentro do Puma e na subida da aplicação.
