@@ -19,7 +19,9 @@ As portas ficam acessíveis só em `127.0.0.1`.
 ### Pré-requisitos
 
 - Docker com Docker Compose
-- Node/npm no host, para rodar a CLI do Dev Container via `npx`
+- Formas de abrir o Dev Container:
+  - **VS Code** com a extensão Dev Containers, ou **RubyMine**: abrem o projeto direto no container, sem instalar mais nada.
+  - **Terminal**: precisa de Node/npm no host, para rodar a CLI do Dev Container via `npx`.
 
 Opcional: instalar a CLI globalmente e criar um alias no `~/.bashrc`:
 
@@ -32,7 +34,9 @@ Com o alias, basta trocar `npx @devcontainers/cli exec --workspace-folder .` por
 
 ### Subir o ambiente
 
-Rode a partir da raiz do projeto:
+No VS Code, use o comando **Dev Containers: Reopen in Container**. Depois disso, os comandos das seções abaixo rodam direto no terminal integrado, sem o prefixo `npx @devcontainers/cli exec --workspace-folder .`.
+
+Pelo terminal, rode a partir da raiz do projeto:
 
 ```bash
 npx @devcontainers/cli up --workspace-folder .
@@ -40,7 +44,7 @@ npx @devcontainers/cli up --workspace-folder .
 
 Na primeira execução, o comando constrói a imagem e roda o `bin/setup --skip-server`, que instala as gems e os pacotes npm e prepara o banco.
 
-Depois de alterar algo em `.devcontainer/`, recrie o container:
+Depois de alterar algo em `.devcontainer/`, recrie o container. No VS Code, use o comando **Dev Containers: Rebuild Container**. Pelo terminal:
 
 ```bash
 npx @devcontainers/cli up --workspace-folder . --remove-existing-container
