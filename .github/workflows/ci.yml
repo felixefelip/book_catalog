@@ -52,6 +52,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
 
     services:
       postgres:
@@ -91,6 +94,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
+        id: tests
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
@@ -114,8 +118,21 @@ jobs:
           path: ${{ github.workspace }}/coverage
           if-no-files-found: ignore
 
+      - name: Publish coverage status
+        if: always() && hashFiles('coverage/.last_run.json') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }}" \
+            -f state=${{ steps.tests.outcome == 'success' && 'success' || 'failure' }} \
+            -f context="${{ github.workflow }} / coverage-ruby (${{ github.event_name }})" \
+            -f description="$(jq -r '"Lines \(.result.line)% · Branches \(.result.branch)%"' coverage/.last_run.json)"
+
   frontend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
 
     steps:
       - name: Checkout code
@@ -134,4 +151,15 @@ jobs:
         run: npm run check
 
       - name: Run frontend tests
+        id: tests
         run: npm test -- --run --coverage
+
+      - name: Publish coverage status
+        if: always() && hashFiles('coverage/frontend/coverage-summary.json') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }}" \
+            -f state=${{ steps.tests.outcome == 'success' && 'success' || 'failure' }} \
+            -f context="${{ github.workflow }} / coverage-frontend (${{ github.event_name }})" \
+            -f description="$(jq -r '.total | "Lines \(.lines.pct)% · Branches \(.branches.pct)%"' coverage/frontend/coverage-summary.json)"
