@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: book-catalog
+data:
+  DB_HOST: "postgres"
+  SOLID_QUEUE_IN_PUMA: "true"
+  HTTP_PORT: "8080"
+  RAILS_LOG_LEVEL: "info"
