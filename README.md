@@ -35,7 +35,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [x] PostgreSQL
 - [x] Testes com RSpec cobrindo models, requests, system specs e a Open Library com WebMock
 - [x] Testes do frontend com Vitest
-- [ ] `docker compose up` na raiz do projeto: hoje o ambiente sobe pelo Dev Container (`.devcontainer/compose.yaml`)
+- [x] Ambiente com Docker e Docker Compose, pelo [Dev Container](#dev-container) (`.devcontainer/compose.yaml`)
 - [x] Commit inicial com o boilerplate do Rails isolado
 - [x] Gem de autorização para as regras de edição (CanCanCan)
 
