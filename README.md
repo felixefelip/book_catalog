@@ -2,6 +2,82 @@
 
 Catálogo de livros feito com Rails, Inertia e React, com importação de dados da Open Library.
 
+## Checklist do desafio
+
+### Acesso público
+
+- [x] Lista paginada de livros, do mais recente para o mais antigo (Kaminari)
+- [x] Filtros por autor, gênero e ano de publicação, além de título
+- [x] Cabeçalho com **Criar conta**/**Login**, e nome do usuário quando logado
+
+### Área logada
+
+- [x] Cadastrar, editar e remover livros, só os próprios (CanCanCan)
+- [x] Filtro "meus livros"
+- [ ] Endpoint JSON `/books.json` listando os livros
+
+### Fluxo de cadastro
+
+- [x] Backend consulta a Open Library com HTTParty (`OpenLibrary::Client`)
+- [x] Frontend em React + TypeScript via Inertia exibe os resultados e permite a seleção
+- [x] A seleção preenche autor, ano, gêneros, descrição e capa
+
+### Decisões técnicas em aberto
+
+- [ ] Cadastro duplicado de livros: ainda sem regra definida
+- [x] Open Library indisponível ou sem resultados: o backend responde `502` e o formulário mostra a mensagem de erro ou de "nenhum resultado"
+- [ ] Nível de acesso ao `/books.json`
+
+### Requisitos técnicos
+
+- [x] Rails 7+ (8.1) e Ruby 3.3+ (4.0)
+- [x] React + TypeScript integrado via Inertia.js
+- [x] PostgreSQL
+- [x] Testes com RSpec cobrindo models, requests, system specs e a Open Library com WebMock
+- [x] Testes do frontend com Vitest
+- [ ] `docker compose up` na raiz do projeto: hoje o ambiente sobe pelo Dev Container (`.devcontainer/compose.yaml`)
+- [x] Commit inicial com o boilerplate do Rails isolado
+- [x] Gem de autorização para as regras de edição (CanCanCan)
+
+### Diferenciais
+
+- [x] CI no GitHub Actions com RuboCop, Brakeman, bundler-audit, RSpec e Vitest
+- [x] Manifests de Deployment/Service do Kubernetes (`k8s/`)
+- [x] Paginação com Kaminari
+- [ ] Cache básico
+- [ ] Logging estruturado
+
+### README
+
+- [x] Instruções de como rodar
+- [ ] Seção de decisões técnicas (as três situações em aberto e as escolhas de arquitetura)
+- [ ] Seção "Com mais tempo"
+- [ ] Seção sobre o uso de IA, com pelo menos um exemplo de sugestão incorreta e a correção
+
+## Decisões técnicas
+
+### Indisponibilidade ou resposta vazia da Open Library
+
+A Open Library serve para preencher o formulário, mas o cadastro não depende dela. Se a API falhar, a pessoa continua conseguindo cadastrar o livro digitando os dados à mão, porque todos os campos do formulário são editáveis e só o título é obrigatório.
+
+**Backend**
+
+- O `OpenLibrary::Client` usa timeout de 5 segundos e converte qualquer falha num único erro, `OpenLibrary::Client::Error`: erro de rede, timeout, SSL, status diferente de 2xx ou JSON inválido. Assim, quem usa o client só precisa tratar um tipo de erro.
+- O `OpenLibrary::BooksController` transforma esse erro numa resposta `502 Bad Gateway`, com uma mensagem traduzida. O `502` deixa claro que a falha é do serviço externo, e não da aplicação nem da requisição.
+- Buscas com menos de 3 caracteres devolvem `[]` sem consultar a API.
+- O endpoint tem rate limit de 30 requisições por minuto, para não sobrecarregar a Open Library nem estourar o limite dela.
+
+**Frontend**
+
+- A busca por título tem debounce de 400 ms e cancela a requisição anterior quando a pessoa continua digitando.
+- Abaixo do campo de título aparece "Buscando na Open Library..." durante a busca, "Não foi possível consultar a Open Library." quando a API falha e "Nenhum livro encontrado na Open Library." quando não há resultados. Em todos os casos o título digitado continua no campo, e o formulário pode ser enviado normalmente.
+- A descrição é buscada numa segunda requisição, depois que a pessoa escolhe um resultado. Se essa requisição falhar, a descrição fica em branco e o resto dos dados escolhidos continua preenchido.
+
+**Capa**
+
+- A capa não é baixada durante o cadastro. O livro é salvo com o id da capa da Open Library, e o `Book::AttachOpenLibraryCoverJob` baixa a imagem em segundo plano. Assim, o cadastro não fica lento nem falha por causa da capa.
+- Se o download falhar, o job tenta de novo até 3 vezes, com intervalos cada vez maiores. Enquanto a capa não é baixada, a listagem mostra a imagem direto da Open Library.
+
 ## Dev Container
 
 Ambiente de desenvolvimento em Docker, configurado em `.devcontainer/`. Segue o guia oficial do Rails: [Getting Started with Dev Containers](https://guides.rubyonrails.org/getting_started_with_devcontainer.html).
