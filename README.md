@@ -8,6 +8,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 - [Checklist do desafio](#checklist-do-desafio)
 - [Decisões técnicas](#decisões-técnicas)
   - [Convenções do Rails e da 37signals](#convenções-do-rails-e-da-37signals)
+  - [Cadastro duplicado de livros](#cadastro-duplicado-de-livros)
   - [Indisponibilidade ou resposta vazia da Open Library](#indisponibilidade-ou-resposta-vazia-da-open-library)
 - [Dev Container](#dev-container)
 - [CI](#ci)
@@ -41,7 +42,7 @@ Catálogo de livros feito com Rails, Inertia e React, com importação de dados 
 
 ### Decisões técnicas em aberto
 
-- [ ] Cadastro duplicado de livros: ainda sem regra definida
+- [x] [Cadastro duplicado de livros](#cadastro-duplicado-de-livros): é permitido
 - [x] Open Library indisponível ou sem resultados: o backend responde `502` e o formulário mostra a mensagem de erro ou de "nenhum resultado"
 - [ ] Nível de acesso ao `/books.json`
 
@@ -87,6 +88,10 @@ O projeto segue as convenções do Rails e o estilo da 37signals (Basecamp, HEY)
 - **Filtros com scopes:** cada filtro da listagem é um scope do model, e o `Book.filter_by` junta todos. O controller só repassa os parâmetros.
 - **Ferramentas nativas do Rails:** a autenticação vem do gerador do Rails 8 (`Current`, `Session` e o concern `Authentication`), e os jobs usam o Solid Queue, sem Devise nem Redis.
 - **Estilo de código:** o RuboCop usa o `rubocop-rails-omakase`, que é o padrão do Rails.
+
+### Cadastro duplicado de livros
+
+A aplicação permite cadastrar livros repetidos, tanto pela mesma pessoa quanto por pessoas diferentes. Dois livros com o mesmo título podem ser edições diferentes, ou até obras diferentes, de outros autores. Não existe um dado que diga com segurança que dois cadastros são o mesmo livro, então bloquear pelo título impediria cadastros válidos.
 
 ### Indisponibilidade ou resposta vazia da Open Library
 
