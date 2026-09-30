@@ -8,5 +8,23 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["app/frontend/test/setup.ts"],
     include: ["app/frontend/test/**/*.test.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      include: ["app/frontend/**/*.{ts,tsx}"],
+      exclude: [
+        "app/frontend/components/ui/**",
+        "app/frontend/entrypoints/**",
+        "app/frontend/test/**",
+        "app/frontend/types/**",
+      ],
+      reportsDirectory: "coverage/frontend",
+      thresholds: {
+        statements: 80,
+        branches: 86,
+        functions: 76,
+        lines: 82,
+        autoUpdate: (newThreshold) => Math.floor(newThreshold),
+      },
+    },
   },
 });
