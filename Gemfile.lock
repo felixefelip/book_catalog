@@ -135,7 +135,7 @@ GEM
     globalid (1.4.0)
       activesupport (>= 6.1)
     hashdiff (1.2.1)
-    httparty (0.24.2)
+    httparty (0.24.3)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -501,7 +501,7 @@ CHECKSUMS
   fugit (1.14.0) sha256=e311a9cc85a54bb67649df45060e721282a1e2c8ebad40e41874a3a7d576f37e
   globalid (1.4.0) sha256=037f12fbf1d9d7a014d501c2d5c77356fd4ddd96d7a7991d6700bba96706f427
   hashdiff (1.2.1) sha256=9c079dbc513dfc8833ab59c0c2d8f230fa28499cc5efb4b8dd276cf931457cd1
-  httparty (0.24.2) sha256=8fca6a54aa0c4aa4303a0fd33e5e2156175d6a5334f714263b458abd7fda9c38
+  httparty (0.24.3) sha256=5c95cf29ca70d5bfd834e56140ddfca6e94166c3b870cde9c25d157cdb5a00d2
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   image_processing (1.14.0) sha256=754cc169c9c262980889bec6bfd325ed1dafad34f85242b5a07b60af004742fb
   inertia_rails (3.22.0) sha256=39c20120de472015d2831fa461f8a09672c68e91c41d3d660e0b1d16b787b7b1
